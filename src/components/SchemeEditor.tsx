@@ -1,20 +1,64 @@
-import React, { FC, useRef } from "react";
+import React, {
+  CSSProperties,
+  FC,
+  PropsWithChildren,
+  useEffect,
+  useState,
+} from "react";
 import "./SchemeEditor.css";
-import { Dragger } from "./Dragger";
-import { DragItem } from "./DragItem";
-// export const SchemeEditor: FC = () => {
-//   return <div>123</div>;
-// };
+import { useCanvas } from "../hooks/userCanvas";
+import { CustomEl } from "./CustomEl";
+import { SchemeEditorOptions } from "../models";
 
-export const SchemeEditor: FC = () => {
-  const canvasRef = useRef(null);
+function getStyles({
+  x,
+  y,
+  zoom,
+}: {
+  zoom: number;
+  x: number;
+  y: number;
+}): CSSProperties {
+  return {
+    backgroundSize: `${zoom * 25}px ${zoom * 25}px`,
+    backgroundPosition: `${Math.round(x)}px ${Math.round(y)}px`,
+  };
+}
+
+function canvasStyle({ x, y, zoom }: any) {
+  return {
+    transform: `translate(${Math.round(x)}px, ${Math.round(
+      y
+    )}px) scale(${zoom})`,
+  };
+}
+
+export const SchemeEditor: FC<PropsWithChildren<SchemeEditorOptions>> = (
+  props
+) => {
+  const { children, ...initialOptions } = props;
+  const [options, setOptions] = useState<SchemeEditorOptions>(initialOptions);
+
+  useEffect(
+    () => setOptions(initialOptions),
+    [initialOptions, initialOptions.canvasPosition, initialOptions.zoom]
+  );
+
+  const { ref, position, zoom } = useCanvas<HTMLDivElement>(options);
+
   return (
-    <Dragger ref={canvasRef}>
-      <DragItem>
-        <div ref={canvasRef} className="schema-editor-canvas">
-          <div className="schema-editor-drag-canvas"></div>
-        </div>
-      </DragItem>
-    </Dragger>
+    <div
+      ref={ref}
+      className="schema-editor-canvas"
+      style={getStyles({ ...position, zoom })}
+    >
+      <div
+        className="schema-editor-drag-canvas"
+        style={canvasStyle({ ...position, zoom })}
+      >
+        <CustomEl></CustomEl>
+        {children}
+      </div>
+    </div>
   );
 };
