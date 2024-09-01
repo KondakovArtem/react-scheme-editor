@@ -1,0 +1,34 @@
+:root {
+  --schema-editor-grid-color: rgb(240, 240, 240);
+  --schema-editor-canvas-bg-image: linear-gradient(
+      to right,
+      var(--schema-editor-grid-color) 1px,
+      transparent 1px
+    ),
+    linear-gradient(to bottom, var(--schema-editor-grid-color) 1px, transparent 1px);
+    
+}
+
+.schema-editor-canvas {
+  position: relative;
+  background-image: var(--schema-editor-canvas-bg-image);
+  background-size: 25px 25px;
+  border: 1px solid var(--schema-editor-grid-color);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  touch-action: none;
+  outline: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.schema-editor-drag-canvas {
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  position: relative;
+  display: flex;
+  flex: 1;
+  transform-origin: 0 0;
+}
