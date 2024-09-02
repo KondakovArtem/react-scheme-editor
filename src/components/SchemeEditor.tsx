@@ -1,71 +1,59 @@
-import React, {
-  CSSProperties,
-  FC,
-  PropsWithChildren,
-  useEffect,
-  useState,
-} from "react";
+import { FC, useEffect, useState } from "react";
 import "./SchemeEditor.css";
-import { useCanvas } from "../hooks/userCanvas";
-import { CustomEl } from "./CustomEl";
-import { Position, SchemeEditorOptions } from "../models";
 
-function getStyles({
-  x = 0,
-  y = 0,
-  zoom = 1,
-  dragging,
-}: Partial<Position & { zoom: number; dragging: boolean }>): CSSProperties {
-  return {
-    backgroundSize: `${zoom * 25}px ${zoom * 25}px`,
-    backgroundPosition: `${Math.round(x)}px ${Math.round(y)}px`,
-    border: dragging ? "1px solid black" : "",
-  };
-}
+import { EDraggingMode, SchemaEditorNode, SchemeEditorProps } from "../models";
 
-function canvasStyle({ x, y, zoom }: any) {
-  return {
-    transform: `translate(${Math.round(x)}px, ${Math.round(
-      y
-    )}px) scale(${zoom})`,
-  };
-}
+import { SchemeEditorContext } from "../context/editor";
+import { SchemeEditorCanvas } from "./SchemeEditorCanvas";
 
-export const SchemeEditor: FC<PropsWithChildren<SchemeEditorOptions>> = (
-  props
-) => {
-  const { children, ...initialOptions } = props;
-  const [options, setOptions] = useState<SchemeEditorOptions>(initialOptions);
+export const SchemeEditor: FC<SchemeEditorProps> = (props) => {
+  const { changeConfig, children } = props;
 
-  useEffect(
-    () => setOptions(initialOptions),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [initialOptions.canvasPosition, initialOptions.zoom]
+  const [draggingMode, setDraggingMode] = useState<EDraggingMode | undefined>(
+    undefined
   );
+  const [config, setConfig] = useState(props.config);
+  useEffect(() => setConfig(props.config), [props.config]);
 
-  function onZooming() {
-    debugger;
-  }
-
-  const { ref, position, zoom, dragging } = useCanvas<HTMLDivElement>({
-    ...options,
-    onZooming,
-    dragCanvasClasses: ["schema-editor-canvas", "schema-editor-drag-canvas"],
-  });
   return (
-    <div
-      ref={ref}
-      className="schema-editor-canvas"
-      style={getStyles({ ...position, zoom, dragging })}
+    <SchemeEditorContext.Provider
+      value={{
+        draggingMode,
+        setDraggingMode,
+        config,
+        setConfig: (c) => setConfig((o) => ({ ...o, ...c })),
+        onSelect: ({ id, event }) => {
+          let newSelected: SchemaEditorNode["id"][] = [];
+          if (id === undefined) {
+            changeConfig?.({ selected: newSelected });
+            return;
+          }
+          const selected = props.config?.selected ?? [];
+
+          if (event.ctrlKey) {
+            newSelected = selected.includes(id)
+              ? selected.filter((i) => i !== id)
+              : [...selected, id];
+          } else {
+            newSelected = [id];
+          }
+          changeConfig?.({ selected: newSelected });
+        },
+        onDragEnd: ({ position: canvasPosition }) =>
+          changeConfig?.({ canvasPosition }),
+        setZoom: (data) => changeConfig?.(data),
+        dragCanvasClasses: [
+          "schema-editor-canvas",
+          "schema-editor-drag-canvas",
+        ],
+        NodeTemplate: children,
+      }}
     >
-      <div
-        className="schema-editor-drag-canvas"
-        style={canvasStyle({ ...position, zoom, dragging })}
-      >
-        <CustomEl></CustomEl>
-        {children}
-        {JSON.stringify({ position, zoom })}
-      </div>
-    </div>
+      <div>dragging = {draggingMode + ""}</div>
+      <SchemeEditorCanvas
+        data={props.data}
+        config={config}
+      ></SchemeEditorCanvas>
+    </SchemeEditorContext.Provider>
   );
 };

@@ -1,38 +1,26 @@
-import { useState, useEffect, MutableRefObject, useRef } from "react";
-import { Position, SchemeEditorOptions } from "../models";
+import { useEffect, MutableRefObject, useRef, useContext } from "react";
+import { Position } from "../models";
+import { SchemeEditorContext } from "../context/editor";
 
 export const settings = {
   zoomMin: 0.2,
   zoomMax: 2,
   zoomStep: 0.2,
-  //zoom: 1,
-  canvasPosition: {
-    x: 0,
-    y: 0,
-  },
   canvasDragMode: false,
   showMap: true,
 };
 
-interface UseZoomOptions<T> extends SchemeEditorOptions {
+interface UseZoomOptions<T> {
   ref: MutableRefObject<T | null>;
-  onZooming?: () => void;
-  setZoom?: (zoom: number) => void;
-  setPosition?: (pos: Position) => void;
+  canvasRef?: MutableRefObject<T | null>;
 }
 
-export function useZoom<T extends HTMLElement>(props: UseZoomOptions<T>) {
-  const { ref, canvasPosition = { x: 0, y: 0 } } = props;
-  const zoomState = useState(props.zoom ?? 1);
-  const positionState = useState(canvasPosition ?? { x: 0, y: 0 });
-
-  const [zoom, setZoom] = props.setZoom
-    ? [props.zoom ?? 1, props.setZoom]
-    : zoomState;
-
-  const [position, setPosition] = props.setPosition
-    ? [canvasPosition ?? { x: 0, y: 0 }, props.setPosition]
-    : positionState;
+export function useZoom<T extends HTMLElement>({
+  canvasRef,
+  ref,
+}: UseZoomOptions<T>) {
+  const { config, setZoom } = useContext(SchemeEditorContext) ?? {};
+  const { zoom = 1, canvasPosition: position = { x: 0, y: 0 } } = config ?? {};
 
   const optionsRef = useRef({ position, zoom });
   Object.assign(optionsRef.current, { position, zoom });
@@ -41,13 +29,36 @@ export function useZoom<T extends HTMLElement>(props: UseZoomOptions<T>) {
     return ref.current?.getBoundingClientRect() as DOMRect;
   }
 
+  const zoomRef = useRef(zoom);
+
   useEffect(() => {
-    const { current: options } = optionsRef;
-    if (options.zoom !== zoom) {
-      props.onZooming?.();
+    if (zoomRef.current !== zoom) {
+      zoomRef.current = zoom;
+
+      const canvas = canvasRef?.current;
+      const container = ref?.current;
+      if (canvas && container) {
+        const clearTransition = () => {
+          canvas.style.transition = "";
+          container.style.transition = "";
+        };
+        Object.assign(container.style, {
+          transition: ".2s",
+          transitionProperty: "background-size, background-position",
+        });
+        Object.assign(canvas.style, {
+          transition: ".2s",
+          transitionProperty: "transform",
+        });
+
+        canvas.addEventListener("transitionend", () => {
+          clearTransition();
+          canvas.removeEventListener("transitionend", clearTransition);
+        });
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [zoom, props.onZooming]);
+  }, [zoom]);
 
   function zoomIn(pos?: Position): void {
     const { current: options } = optionsRef;
@@ -76,37 +87,31 @@ export function useZoom<T extends HTMLElement>(props: UseZoomOptions<T>) {
       };
     }
     const zoomK = newZoom / options.zoom;
-    setZoom(newZoom);
-
-    setPosition({
-      x: ((options.position?.x ?? 0) - pos.x) * zoomK + pos.x,
-      y: ((options.position?.y ?? 0) - pos.y) * zoomK + pos.y,
+    setZoom?.({
+      zoom: newZoom,
+      canvasPosition: {
+        x: ((options.position?.x ?? 0) - pos.x) * zoomK + pos.x,
+        y: ((options.position?.y ?? 0) - pos.y) * zoomK + pos.y,
+      },
     });
-
-    // this.dragCanvas.nativeElement.style.transition = "0.2s";
-    // this.updateSettings({
-    //   canvasPosition: canvasPos,
-    //   zoom,
-    // });
   }
 
   const zoomByWheelEvent = (event: WheelEvent) => {
-    const canvasBox = getCanvasBox();
-    if (canvasBox) {
-      const pos = {
-        x: event.clientX - canvasBox.x,
-        y: event.clientY - canvasBox.y,
-      };
-      if (event.deltaY > 0) {
-        zoomIn(pos);
-      } else {
-        zoomOut(pos);
+    if (event.ctrlKey) {
+      event.preventDefault();
+      const canvasBox = getCanvasBox();
+      if (canvasBox) {
+        const pos = {
+          x: event.clientX - canvasBox.x,
+          y: event.clientY - canvasBox.y,
+        };
+        event.deltaY > 0 ? zoomOut(pos) : zoomIn(pos);
       }
     }
   };
 
   useEffect(() => {
-    const { current: element } = ref;
+    const { current: element } = ref ?? {};
     if (!element) return;
     element.addEventListener("wheel", (event) => zoomByWheelEvent(event));
     return () => {
@@ -114,8 +119,7 @@ export function useZoom<T extends HTMLElement>(props: UseZoomOptions<T>) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref]);
-  // console.log("optionsRef.current.zoom=", optionsRef.current.zoom);
-  // console.log("optionsRef.current.position=", optionsRef.current.position);
+
   return {
     ref,
     ...optionsRef.current,
