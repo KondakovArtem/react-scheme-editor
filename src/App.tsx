@@ -6,7 +6,6 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
 function App() {
-  console.log("app");
   return (
     <div className="App">
       <div style={{ width: "600px", height: "600px", position: "relative" }}>

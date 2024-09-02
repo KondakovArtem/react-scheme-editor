@@ -1,7 +1,6 @@
 import { FC, memo, useState } from "react";
 
 export const CustomEl: FC = memo(() => {
-  console.log("test123");
   const [val, setVal] = useState(1);
   return (
     <div

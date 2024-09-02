@@ -8,20 +8,18 @@ import React, {
 import "./SchemeEditor.css";
 import { useCanvas } from "../hooks/userCanvas";
 import { CustomEl } from "./CustomEl";
-import { SchemeEditorOptions } from "../models";
+import { Position, SchemeEditorOptions } from "../models";
 
 function getStyles({
-  x,
-  y,
-  zoom,
-}: {
-  zoom: number;
-  x: number;
-  y: number;
-}): CSSProperties {
+  x = 0,
+  y = 0,
+  zoom = 1,
+  dragging,
+}: Partial<Position & { zoom: number; dragging: boolean }>): CSSProperties {
   return {
     backgroundSize: `${zoom * 25}px ${zoom * 25}px`,
     backgroundPosition: `${Math.round(x)}px ${Math.round(y)}px`,
+    border: dragging ? "1px solid black" : "",
   };
 }
 
@@ -41,23 +39,32 @@ export const SchemeEditor: FC<PropsWithChildren<SchemeEditorOptions>> = (
 
   useEffect(
     () => setOptions(initialOptions),
-    [initialOptions, initialOptions.canvasPosition, initialOptions.zoom]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [initialOptions.canvasPosition, initialOptions.zoom]
   );
 
-  const { ref, position, zoom } = useCanvas<HTMLDivElement>(options);
+  function onZooming() {
+    debugger;
+  }
 
+  const { ref, position, zoom, dragging } = useCanvas<HTMLDivElement>({
+    ...options,
+    onZooming,
+    dragCanvasClasses: ["schema-editor-canvas", "schema-editor-drag-canvas"],
+  });
   return (
     <div
       ref={ref}
       className="schema-editor-canvas"
-      style={getStyles({ ...position, zoom })}
+      style={getStyles({ ...position, zoom, dragging })}
     >
       <div
         className="schema-editor-drag-canvas"
-        style={canvasStyle({ ...position, zoom })}
+        style={canvasStyle({ ...position, zoom, dragging })}
       >
         <CustomEl></CustomEl>
         {children}
+        {JSON.stringify({ position, zoom })}
       </div>
     </div>
   );

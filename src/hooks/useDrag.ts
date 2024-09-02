@@ -1,43 +1,61 @@
-import { useState, useEffect, MutableRefObject } from "react";
-import type { SchemeEditorOptions } from "../models";
+import { useState, useEffect, MutableRefObject, useRef } from "react";
+import type { Position, SchemeEditorOptions } from "../models";
 
 export interface UseDragOptions<T> extends SchemeEditorOptions {
   ref: MutableRefObject<T | null>;
+  setPosition?: (position: Position) => void;
+  dragCanvasClasses?: string[];
 }
 
-export function useDrag<T extends HTMLElement>(options: UseDragOptions<T>) {
-  const { ref } = options;
-  const { canvasPosition } = options;
+export function useDrag<T extends HTMLElement>(props: UseDragOptions<T>) {
+  const { ref, canvasPosition = { x: 0, y: 0 }, dragCanvasClasses } = props;
+
   const [dragging, setDragging] = useState(false);
 
+  const positionState = useState(canvasPosition);
+  const [position, setPosition] = props.setPosition
+    ? [canvasPosition, props.setPosition]
+    : positionState;
+
+  const optionsRef = useRef({ position, dragging, offset: { x: 0, y: 0 } });
+  Object.assign(optionsRef.current, { position, dragging });
+
+  const handleMouseMove = (event: MouseEvent) => {
+    const {
+      current: { dragging, offset },
+    } = optionsRef;
+    if (!dragging) return;
+    const position = {
+      x: event.clientX - offset.x,
+      y: event.clientY - offset.y,
+    };
+    setPosition(position);
+  };
+
+  const handleMouseDown = (event: MouseEvent) => {
+    if (
+      event.target === ref.current ||
+      (dragCanvasClasses?.length &&
+        dragCanvasClasses.some((cls) =>
+          (event.target as HTMLElement).classList.contains(cls)
+        ))
+    ) {
+      setDragging(true);
+      optionsRef.current.offset = {
+        x: event.clientX - (optionsRef.current.position?.x ?? 0),
+        y: event.clientY - (optionsRef.current.position?.y ?? 0),
+      };
+    }
+  };
+
+  const handleMouseUp = () => {
+    optionsRef.current.offset = { x: 0, y: 0 };
+    setDragging(false);
+  };
+
   useEffect(() => {
-    const element = ref.current;
+    const { current: element } = ref;
     if (!element) return;
-
-    const handleMouseDown = (event: MouseEvent) => {
-      debugger;
-      if (event.target === ref.current) {
-        setDragging(true);
-        setOffset({
-          x: event.clientX - canvasPosition.x,
-          y: event.clientY - canvasPosition.y,
-        });
-      }
-    };
-
-    const handleMouseMove = (event: MouseEvent) => {
-      if (!dragging) return;
-      setPosition({
-        x: event.clientX - offset.x,
-        y: event.clientY - offset.y,
-      });
-    };
-
-    const handleMouseUp = () => {
-      setDragging(false);
-    };
-
-    // window.add
 
     element.addEventListener("mousedown", handleMouseDown);
     document.addEventListener("mousemove", handleMouseMove);
@@ -48,7 +66,8 @@ export function useDrag<T extends HTMLElement>(options: UseDragOptions<T>) {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [dragging, offset, canvasPosition]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ref]);
 
-  return { ref, position };
+  return { ref, position, dragging };
 }
