@@ -1,6 +1,9 @@
 import { useEffect, MutableRefObject, useRef, useContext } from "react";
+
 import { Position } from "../models";
-import { SchemeEditorContext } from "../context/editor";
+import { SchemaEditorMethodsContext } from "../context/editor.methods.context";
+import { useZoomState } from "../context/zoom.context";
+import { useCanvasPositionState } from "../context/canvasPosition.context";
 
 export const settings = {
   zoomMin: 0.2,
@@ -19,8 +22,10 @@ export function useZoom<T extends HTMLElement>({
   canvasRef,
   ref,
 }: UseZoomOptions<T>) {
-  const { config, setZoom } = useContext(SchemeEditorContext) ?? {};
-  const { zoom = 1, canvasPosition: position = { x: 0, y: 0 } } = config ?? {};
+  const { onChangeConfig } = useContext(SchemaEditorMethodsContext) ?? {};
+
+  const zoom = useZoomState();
+  const position = useCanvasPositionState();
 
   const optionsRef = useRef({ position, zoom });
   Object.assign(optionsRef.current, { position, zoom });
@@ -30,35 +35,37 @@ export function useZoom<T extends HTMLElement>({
   }
 
   const zoomRef = useRef(zoom);
+  if (zoomRef.current !== zoom) {
+    zoomRef.current = zoom;
+    const canvas = canvasRef?.current;
+    const container = ref?.current;
+    if (canvas && container) {
+      const clearTransition = () => {
+        canvas.style.transition = "";
+        container.style.transition = "";
+      };
+      Object.assign(container.style, {
+        transition: ".2s",
+        transitionProperty: "background-size, background-position",
+      });
+      Object.assign(canvas.style, {
+        transition: ".2s",
+        transitionProperty: "transform",
+      });
 
-  useEffect(() => {
-    if (zoomRef.current !== zoom) {
-      zoomRef.current = zoom;
-
-      const canvas = canvasRef?.current;
-      const container = ref?.current;
-      if (canvas && container) {
-        const clearTransition = () => {
-          canvas.style.transition = "";
-          container.style.transition = "";
-        };
-        Object.assign(container.style, {
-          transition: ".2s",
-          transitionProperty: "background-size, background-position",
-        });
-        Object.assign(canvas.style, {
-          transition: ".2s",
-          transitionProperty: "transform",
-        });
-
-        canvas.addEventListener("transitionend", () => {
-          clearTransition();
-          canvas.removeEventListener("transitionend", clearTransition);
-        });
-      }
+      canvas.addEventListener("transitionend", () => {
+        clearTransition();
+        canvas.removeEventListener("transitionend", clearTransition);
+      });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [zoom]);
+  }
+
+  // useEffect(() => {
+  //   if (zoomRef.current !== zoom) {
+  //     zoomRef.current = zoom;
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [zoom]);
 
   function zoomIn(pos?: Position): void {
     const { current: options } = optionsRef;
@@ -78,7 +85,6 @@ export function useZoom<T extends HTMLElement>({
 
   function zoomUpdate(newZoom: number, pos?: Position): void {
     const { current: options } = optionsRef;
-    // this.canvasIsZoomingSubject.next(true);
     const box = getCanvasBox();
     if (!pos) {
       pos = {
@@ -87,11 +93,11 @@ export function useZoom<T extends HTMLElement>({
       };
     }
     const zoomK = newZoom / options.zoom;
-    setZoom?.({
+    onChangeConfig?.({
       zoom: newZoom,
       canvasPosition: {
-        x: ((options.position?.x ?? 0) - pos.x) * zoomK + pos.x,
-        y: ((options.position?.y ?? 0) - pos.y) * zoomK + pos.y,
+        x: Math.round(((options.position?.x ?? 0) - pos.x) * zoomK + pos.x),
+        y: Math.round(((options.position?.y ?? 0) - pos.y) * zoomK + pos.y),
       },
     });
   }

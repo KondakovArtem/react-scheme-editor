@@ -1,0 +1,89 @@
+// .scroll-view-h {
+//     position: absolute;
+//     bottom: 0;
+//     left: 0;
+//     width: calc(100% - #{$schema-editor-navigator-scrollbar-width});
+//     height: $schema-editor-navigator-scrollbar-width;
+//     overflow-x: scroll;
+//     overflow-y: hidden;
+//     scroll-behavior: auto;
+//   }
+
+//  .scroll-view-h-canvas {
+//     height: $schema-editor-navigator-scrollbar-width;
+//   }
+
+//  .scroll-view-v {
+//     position: absolute;
+//     right: 0;
+//     top: 0;
+//     width: $schema-editor-navigator-scrollbar-width;
+//     height: calc(100% - #{$schema-editor-navigator-scrollbar-width});
+//     overflow-x: hidden;
+//     overflow-y: scroll;
+//     scroll-behavior: auto;
+//   }
+
+//  .scroll-view-v-canvas {
+//     width: $schema-editor-navigator-scrollbar-width;
+//   }
+
+.container {
+  opacity: 0.8;
+  transition: 0.2s;
+  transform-origin: bottom right;
+  transform: scale(0.5);
+
+  display: flex;
+  flex-direction: column;
+  /* gap: $schema-editor-navigator-map-gap; */
+  position: absolute;
+  /* bottom: $schema-editor-navigator-scrollbar-width;
+    right: $schema-editor-navigator-scrollbar-width; */
+  bottom: 8px;
+  right: 8px;
+  // background-color: $schema-editor-navigator-map-bg;
+  background-color: aliceblue;
+
+  &:hover,
+  &.active {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  .collapsed {
+    display: block;
+  }
+}
+
+.mapCanvas {
+  transition-property: width, height;
+  /* transition-duration: $schema-editor-navigator-map-collapse-transition-duration; */
+  transition-duration: 0.2s;
+}
+
+// .show-map-switcher {
+//   .p-button-icon {
+//     transform: scaleX(-1);
+//     margin-top: pxToRem(1);
+//   }
+// }
+
+// .hand-button {
+//   cursor: pointer;
+
+//   .hand-button-icon {
+//     width: 1rem;
+//     height: 1rem;
+//   }
+
+//   path {
+//     /* stroke: $schema-editor-navigator-hand-icon-color; */
+//   }
+
+//   &.hand-button-active {
+//     path {
+//       /* stroke: $schema-editor-navigator-hand-icon-color-active; */
+//     }
+//   }
+// }

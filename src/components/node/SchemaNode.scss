@@ -1,5 +1,8 @@
-.scheme-editor-node {
+.schema-editor__node {
   position: absolute;
   display: inline-block;
   border: 1px solid black;
+  &.active {
+    z-index: 1;
+  }
 }

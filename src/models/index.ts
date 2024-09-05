@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import { FC } from "react";
 
 export enum TangentDirections {
   AUTO = "auto",
@@ -10,7 +10,7 @@ export enum TangentDirections {
   UP = "up",
 }
 
-type TRecord = Record<string, any>;
+export type TRecord<T = any> = Record<string, T>;
 
 export interface Position {
   x: number;
@@ -22,17 +22,20 @@ export interface Size {
   height: number;
 }
 
-export interface SchemeEditorConfig {
+export type Rect = Position & Size;
+
+export interface SchemaEditorConfig {
   canvasPosition?: Position;
   zoom?: number;
   selected?: SchemaEditorNode["id"][];
 }
 
-export interface SchemeEditorProps {
-  config?: SchemeEditorConfig;
+export interface SchemaEditorProps {
+  config?: SchemaEditorConfig;
   data?: SchemaEditorData;
-  changeConfig?: (config: Partial<SchemeEditorConfig>) => void;
-  children: FC<{ data: SchemaEditorNode }>;
+  onChangeConfig?: (config: Partial<SchemaEditorConfig>) => void;
+  onSelect?(ids: SchemaEditorNode["id"][]): void;
+  children: FC<SchemaEditorNode>;
 }
 
 export interface SchemaEditorData<
@@ -119,7 +122,8 @@ export enum SchemaEditorNodeLinkArrow {
 }
 
 export enum EDraggingMode {
-  canvas = 1,
-  selection = 2,
-  item = 3,
+  canvas = 'canvas',
+  selection = 'selection',
+  item = 'item',
+  none = 'none',
 }
