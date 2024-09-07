@@ -1,8 +1,11 @@
+import { atom } from "jotai";
 import type { Position } from "../models";
-import { createStateContextFactory } from "./context.factory";
+import { configAtom } from ".";
 
-export const {
-  Provider: CanvasPositionProvider,
-  useDispatchContext: useCanvasPositionDispatch,
-  useStateContext: useCanvasPositionState,
-} = createStateContextFactory<Position>("CanvasPosition");
+const DEF_POSITION = { x: 0, y: 0 };
+export const canvasPositionAtom = atom(
+  (get) => get(configAtom)?.canvasPosition ?? DEF_POSITION,
+  (get, set, canvasPosition: Position | undefined) => {
+    set(configAtom, { ...get(configAtom), canvasPosition });
+  }
+);

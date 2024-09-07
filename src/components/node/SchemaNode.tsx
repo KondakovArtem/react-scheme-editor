@@ -5,18 +5,19 @@ import {
   useRef,
   MouseEventHandler,
   useMemo,
-  useEffect,
+  memo,
 } from "react";
 import type { SchemaEditorNode } from "../../models";
 import "./SchemaNode.scss";
 
 import { useResize } from "../../hooks/useResize";
-import { useNodeRectsDispatch } from "../../context/rects.context";
+import { useSetAtom } from "jotai";
+import { nodeRectsAtom } from "../../context/rects.context";
 import {
-  useGetSelectedRef,
-  useSelectedNodeDispatch,
-  useSelectedNodeState,
+  onSelectNodeAtom,
+  selectedNodeAtom,
 } from "../../context/selected.context";
+import { useSelectAtomValue } from "../../utils/atom.selector";
 
 function nodeStyles(position: SchemaEditorNode["position"]): CSSProperties {
   const { x = 0, y = 0 } = position ?? {};
@@ -34,26 +35,21 @@ export const SchemaNode: FC<
   SchemaEditorNodeProps & {
     children?: FC<SchemaEditorNode>;
   }
-> = ({ data, children }) => {
+> = memo(({ data, children }) => {
   const dataRef = useRef(data);
   dataRef.current = data;
   const ref = useRef<HTMLDivElement>(null);
 
-  const onSelect = useSelectedNodeDispatch();
-  const selectedRef = useGetSelectedRef();
-  const selected = useSelectedNodeState();
+  // const [selected, onSelect] = useAtom(selectedNodeAtom);
   const { id } = data;
 
-  useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    children;
-    debugger;
-  }, [children]);
-  useEffect(() => {
-    debugger;
-  }, [data]);
+  const active = useSelectAtomValue(
+    selectedNodeAtom,
+    (s) => s?.includes(id) ?? false,
+    [id]
+  );
 
-  const setRects = useNodeRectsDispatch();
+  const setRects = useSetAtom(nodeRectsAtom);
   useResize({
     ref,
     onResize: useCallback(
@@ -65,39 +61,28 @@ export const SchemaNode: FC<
     ),
   });
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const nodeStyle = useMemo(() => nodeStyles(data.position), [data.position]);
+  const onSelectNode = useSetAtom(onSelectNodeAtom);
 
   const onClick = useCallback<MouseEventHandler>(
     (e) => {
       e.stopPropagation();
-      let newSelected: SchemaEditorNode["id"][] = [];
-      if (e.ctrlKey) {
-        const selected = selectedRef.current ?? [];
-        newSelected = selected?.includes(id)
-          ? selected.filter((i) => i !== id)
-          : [...selected, id];
-      } else {
-        newSelected = [id];
-      }
-      onSelect({ e, ids: newSelected });
+      onSelectNode({ e, ids: [id] });
     },
-    [id, onSelect, selectedRef]
+    [id, onSelectNode]
   );
   console.log("render SchemaNode");
 
-  const active = useMemo(() => selected.includes(id), [selected, id]);
+  const classes = useMemo(
+    () => ["schema-editor__node", active ? "active" : ""].join(" "),
+    [active]
+  );
 
   return (
-    <div
-      onClick={onClick}
-      ref={ref}
-      className={["schema-editor__node", active ? "active" : ""].join(" ")}
-      style={nodeStyle}
-    >
-      {children && children(data)}
+    <div onClick={onClick} ref={ref} className={classes} style={nodeStyle}>
+      {children && children(data, active)}
     </div>
   );
-};
+});
 
 SchemaNode.displayName = "SchemaNode";

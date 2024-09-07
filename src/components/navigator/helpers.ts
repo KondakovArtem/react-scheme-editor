@@ -1,5 +1,10 @@
 import { NodeRects } from "../../context/rects.context";
-import type { Position, Size, SchemaEditorData } from "../../models";
+import type {
+  Position,
+  Size,
+  SchemaEditorData,
+  SchemaEditorNode,
+} from "../../models";
 
 export interface ViewportParams {
   minPos: Position;
@@ -37,7 +42,6 @@ export interface NavigatorColors {
   mapBg: string;
   mapStroke: string;
 }
-
 
 export const MAP_MIN_SIZE: Size = { width: 0, height: 0 };
 export const MAP_MAX_SIZE: Size = { width: 200, height: 200 };
@@ -193,7 +197,6 @@ export function updateMapParams({
   };
 }
 
-
 /**
  * Renders a map on a canvas element using provided data and node rectangles.
  *
@@ -209,6 +212,7 @@ export function renderMap(
     mapParams: MapParams;
     viewportParams: ViewportParams;
     colors?: NavigatorColors;
+    selected?: SchemaEditorNode["id"][];
   }
 ): void {
   // Get the current drag viewport and its map viewport.
@@ -247,17 +251,22 @@ export function renderMap(
     frameSize.height
   );
 
-  // Set base color for nodes.
-  const nodeBaseColor = "#000000";
-  ctx.strokeStyle = nodeBaseColor;
-  ctx.fillStyle = `${nodeBaseColor}40`;
-
   // Render each node as a rectangle on the map.
-  data?.nodes?.forEach((node) => {
-    const rect = rects?.[node.id];
+  data?.nodes?.forEach(({ id }) => {
+    const rect = rects?.[id];
     if (!rect) {
       return;
     }
+
+    // Set base color for nodes.
+    let nodeBaseColor = "#000000";
+
+    if (opts.selected?.includes(id)) {
+      nodeBaseColor = "#009900";
+    }
+    ctx.strokeStyle = nodeBaseColor;
+    ctx.fillStyle = `${nodeBaseColor}40`;
+
     const { width, height, x, y } = rect;
     const rectX = mapPosition.x + (x - minPos.x) * sizeK;
     const rectY = mapPosition.y + (y - minPos.y) * sizeK;

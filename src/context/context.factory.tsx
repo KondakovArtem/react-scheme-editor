@@ -79,7 +79,7 @@ export function createStateContextFactory<
     );
   };
 
-  return {
+  const res = {
     // Возвращаем компонент-провайдер и хуки для доступа к контекстам
     Provider,
     useStateContext: () => {
@@ -101,5 +101,9 @@ export function createStateContextFactory<
       }
       return context;
     },
+    useContext: () =>
+      [res.useStateContext(), res.useDispatchContext()] as [State, Setter],
   };
+
+  return res;
 }

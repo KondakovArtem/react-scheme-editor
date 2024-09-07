@@ -1,8 +1,7 @@
+import { atom } from "jotai";
 import type { Size } from "../models";
-import { createStateContextFactory } from "./context.factory";
 
-export const {
-  Provider: CanvasSizeProvider,
-  useDispatchContext: useCanvasSizeDispatch,
-  useStateContext: useCanvasSizeState,
-} = createStateContextFactory<Size>("CanvasSize");
+const DEF_CANVAS_SIZE = { width: 0, height: 0 };
+export const canvasSizeAtom = atom(DEF_CANVAS_SIZE, (get, set, s: Size) => {
+  set(canvasSizeAtom, s);
+});

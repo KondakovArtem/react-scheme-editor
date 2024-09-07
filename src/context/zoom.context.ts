@@ -1,7 +1,7 @@
-import { createStateContextFactory } from "./context.factory";
+import { atom } from "jotai";
+import { configAtom } from ".";
 
-export const {
-  Provider: ZoomProvider,
-  useStateContext: useZoomState,
-  useDispatchContext: useZoomDispatch,
-} = createStateContextFactory<number>("Zoom");
+export const zoomAtom = atom(
+  (get) => get(configAtom)?.zoom ?? 1,
+  (get, set, zoom: number) => set(configAtom, { ...get(configAtom), zoom })
+);

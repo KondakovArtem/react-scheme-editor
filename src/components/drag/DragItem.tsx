@@ -3,12 +3,11 @@ import {
   memo,
   MutableRefObject,
   PropsWithChildren,
-  useContext,
   useEffect,
   useRef,
 } from "react";
 
-import { DraggerContext, IDragItem } from "./Dragger";
+import { IDragItem, useDragger } from "./Dragger";
 import { debounce } from "../../utils/debounce";
 
 export type MouseTouchEvent = (MouseEvent | TouchEvent) & {
@@ -31,7 +30,7 @@ export type DragItemProps<T extends HTMLElement = HTMLElement> = IDragItem &
  *  Он использует контекст DraggerContext для взаимодействия с Dragger */
 export const DragItem: FC<DragItemProps> = memo(
   ({ dragOptions, itemRef, children, dragStart, dragMove, dragEnd }) => {
-    const dragCtx = useContext(DraggerContext);
+    const dragCtx = useDragger();
 
     const dragOptionsRef = useRef(dragOptions);
     dragOptionsRef.current = dragOptions;
@@ -49,6 +48,7 @@ export const DragItem: FC<DragItemProps> = memo(
       dragEnd,
       startHandler: (e: MouseTouchEvent): void => {
         e.stopPropagation();
+        e.preventDefault();
         methodRef.current.downItemDebounce?.(e);
       },
       downItemDebounce: debounce(

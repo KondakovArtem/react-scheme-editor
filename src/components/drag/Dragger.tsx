@@ -1,22 +1,32 @@
 import {
-  createContext,
   FC,
   MutableRefObject,
   PropsWithChildren,
+  useMemo,
   useRef,
   useState,
 } from "react";
 
 import { Position } from "../../models";
 import { MouseTouchEvent } from "./DragItem";
-import { useCanvasPositionState } from "../../context/canvasPosition.context";
-import { useZoomState } from "../../context/zoom.context";
+
+import { createStateContextFactory } from "../../context/context.factory";
+import { useAtomValue } from "jotai";
+import { canvasPositionAtom } from "../../context/canvasPosition.context";
+import { zoomAtom } from "../../context/zoom.context";
 
 export interface IDragItem {
   dragStart?: (pos: IDraggingEvent) => void;
   dragMove?: (pos: IDraggingEvent) => void;
   dragEnd?: (pos: IDraggingEvent) => void;
 }
+
+interface IDraggerContext {
+  dragStart?: (e: MouseEvent | TouchEvent, dragItem: IDragItem) => void;
+}
+
+export const { Provider: DraggerProvider, useStateContext: useDragger } =
+  createStateContextFactory<IDraggerContext>("Dragger");
 
 export interface DraggerProps<T extends HTMLElement = HTMLElement>
   extends PropsWithChildren {
@@ -102,12 +112,6 @@ function prepareDraggingPos(
   };
 }
 
-interface IDraggerContext {
-  dragStart?: (e: MouseEvent | TouchEvent, dragItem: IDragItem) => void;
-}
-
-export const DraggerContext = createContext<IDraggerContext>({});
-
 /** Компонент предоставляет контекст для управления перетаскиванием.
  *  Он использует useRef для хранения состояния и методов, связанных с перетаскиванием
  * */
@@ -115,8 +119,8 @@ export const Dragger: FC<DraggerProps> = (props) => {
   const { dragRef, children } = props;
   const [enabled, setEnabled] = useState(false);
 
-  const canvasPosition = useCanvasPositionState();
-  const zoom = useZoomState();
+  const canvasPosition = useAtomValue(canvasPositionAtom);
+  const zoom = useAtomValue(zoomAtom);
 
   const stateRef = useRef<{
     curDragItem?: IDragItem;
@@ -254,8 +258,8 @@ export const Dragger: FC<DraggerProps> = (props) => {
 
   const { dragStart } = methodRef.current;
   return (
-    <DraggerContext.Provider value={{ dragStart }}>
+    <DraggerProvider state={useMemo(() => ({ dragStart }), [dragStart])}>
       {children}
-    </DraggerContext.Provider>
+    </DraggerProvider>
   );
 };

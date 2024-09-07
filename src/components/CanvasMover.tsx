@@ -1,8 +1,10 @@
 import { FC, MutableRefObject, PropsWithChildren } from "react";
-import { useCanvasPositionState } from "../context/canvasPosition.context";
-import { useZoomState } from "../context/zoom.context";
+import { canvasPositionAtom } from "../context/canvasPosition.context";
+
 import { Position } from "../models";
 import { useZoom } from "../hooks/useZoom";
+import { useAtomValue } from "jotai";
+import { zoomAtom } from "../context/zoom.context";
 
 export const CanvasMover: FC<
   PropsWithChildren<{
@@ -11,8 +13,8 @@ export const CanvasMover: FC<
     positionRef: MutableRefObject<Position | undefined>;
   }>
 > = ({ children, canvasRef, dragRef, positionRef }) => {
-  const canvasPosition = useCanvasPositionState();
-  const zoom = useZoomState();
+  const canvasPosition = useAtomValue(canvasPositionAtom);
+  const zoom = useAtomValue(zoomAtom);
 
   useZoom({ ref: dragRef, canvasRef });
 

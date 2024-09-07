@@ -1,17 +1,15 @@
-import {
-  FC,
-  MutableRefObject,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { FC, MutableRefObject, useEffect, useMemo, useRef } from "react";
+import { useAtom, useAtomValue } from "jotai";
 import style from "./Navigator.module.scss";
-import { Position, SchemaEditorData } from "../../models";
-import { useContext } from "../../context";
+import {
+  EDraggingMode,
+  Position,
+  SchemaEditorData,
+  SchemaEditorNode,
+} from "../../models";
 import { DragItem } from "../drag/DragItem";
 import { IDraggingEvent, IDragItem, subCoords } from "../drag/Dragger";
-import { SchemaEditorMethodsContext } from "../../context/editor.methods.context";
+import { methodsAtom } from "../../context/methods.context";
 import {
   updateViewportParams,
   updateMapParams,
@@ -23,37 +21,42 @@ import {
   renderMap,
   NavigatorColors,
 } from "./helpers";
-import { useZoomState } from "../../context/zoom.context";
-import {
-  useCanvasPositionDispatch,
-  useCanvasPositionState,
-} from "../../context/canvasPosition.context";
-import { NodeRects, useNodeRectsState } from "../../context/rects.context";
-import { useCanvasSizeState } from "../../context/canvasSize.context";
+
+import { NodeRects, nodeRectsAtom } from "../../context/rects.context";
+
+import { canvasPositionAtom } from "../../context/canvasPosition.context";
+import { zoomAtom } from "../../context/zoom.context";
+import { canvasSizeAtom } from "../../context/canvasSize.context";
+import { dragginModeAtom } from "../../context/draggingMode.context";
+import { selectedNodeAtom } from "../../context/selected.context";
 
 interface NavigatorProps {
-  showMap: boolean;
   data?: SchemaEditorData;
 }
 
-export const Navigator: FC<NavigatorProps> = ({ showMap, data }) => {
-  const canvasSize = useCanvasSizeState();
+export const Navigator: FC<NavigatorProps> = ({ data }) => {
+  const canvasSize = useAtomValue(canvasSizeAtom);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const canvasPosition = useCanvasPositionState();
-  const rects = useNodeRectsState();
-  const zoom = useZoomState();
+  const [canvasPosition, setCanvasPosition] = useAtom(canvasPositionAtom);
+  const rects = useAtomValue(nodeRectsAtom);
+  const zoom = useAtomValue(zoomAtom);
+  const selected = useAtomValue(selectedNodeAtom);
 
-  const setCanvasPosition = useCanvasPositionDispatch();
-  const { onChangeConfig } = useContext(SchemaEditorMethodsContext) ?? {};
+  const showMap = true;
 
-  const [active, setActive] = useState(false);
+  const { onChangeConfig } = useAtomValue(methodsAtom) ?? {};
+  const [draggingMode, setDraggingMode] = useAtom(dragginModeAtom);
 
-  const classes = [
-    style.container,
-    !showMap ? "collapsed" : "",
-    active ? style.active : "",
-  ].join(" ");
+  const classes = useMemo(
+    () =>
+      [
+        style.container,
+        !showMap ? "collapsed" : "",
+        draggingMode === EDraggingMode.navigator ? style.active : "",
+      ].join(" "),
+    [draggingMode, showMap]
+  );
 
   const colorRef = useRef<NavigatorColors | undefined>();
 
@@ -83,9 +86,10 @@ export const Navigator: FC<NavigatorProps> = ({ showMap, data }) => {
         scrollSizeKRef.current
       );
       mapParamsRef.current = updateMapParams(viewportParamsRef.current);
-      methodsRef.current.renderMap(data, rects);
+      methodsRef.current.renderMap(data, rects, selected);
     }
-  }, [zoom, canvasPosition, rects, data, canvasSize]);
+  }, [zoom, canvasPosition, rects, data, canvasSize, selected]);
+
   useEffect(() => methodsRef.current.renderMap(data, rects), [data, rects]);
 
   const viewportParamsRef = useRef<ViewportParams>({
@@ -108,22 +112,27 @@ export const Navigator: FC<NavigatorProps> = ({ showMap, data }) => {
   const dragViewportRef = useRef<DragViewport | undefined>();
 
   const methodsRef: MutableRefObject<{
-    renderMap: (data?: SchemaEditorData, rects?: NodeRects) => void;
+    renderMap: (
+      data?: SchemaEditorData,
+      rects?: NodeRects,
+      selected?: SchemaEditorNode["id"][]
+    ) => void;
     updatePositionByMap: (e: IDraggingEvent) => undefined | Position;
     mapDragStart: IDragItem["dragStart"];
     mapDragMove: IDragItem["dragMove"];
     mapDragEnd: IDragItem["dragEnd"];
   }> = useRef({
-    renderMap: (data?: SchemaEditorData, rects?: NodeRects) =>
+    renderMap: (data, rects, selected?) =>
       renderMap(data, rects, {
         dragViewport: dragViewportRef.current,
         mapParams: mapParamsRef.current,
         viewportParams: viewportParamsRef.current,
         canvas: canvasRef.current,
         colors: colorRef.current,
+        selected,
       }),
 
-    updatePositionByMap: (e: IDraggingEvent) => {
+    updatePositionByMap: (e) => {
       const { mapParams, viewportParams } = dragViewportRef.current ?? {};
       if (mapParams) {
         const mapCanvasRect = canvasRef.current?.getBoundingClientRect();
@@ -151,17 +160,17 @@ export const Navigator: FC<NavigatorProps> = ({ showMap, data }) => {
       }
     },
     mapDragStart: (e) => {
+      setDraggingMode(EDraggingMode.navigator);
       dragViewportRef.current = {
         viewportParams: { ...viewportParamsRef.current },
         mapParams: { ...mapParamsRef.current },
       };
-      setActive(true);
       methodsRef.current.updatePositionByMap(e);
     },
     mapDragMove: (e) => methodsRef.current.updatePositionByMap(e),
-    mapDragEnd: (e) => {
-      setActive(false);
-      const canvasPosition = methodsRef.current.updatePositionByMap(e);
+    mapDragEnd: (event) => {
+      setTimeout(() => setDraggingMode(EDraggingMode.none));
+      const canvasPosition = methodsRef.current.updatePositionByMap(event);
       canvasPosition && onChangeConfig?.({ canvasPosition });
       delete dragViewportRef.current;
     },
@@ -246,6 +255,7 @@ export const Navigator: FC<NavigatorProps> = ({ showMap, data }) => {
         dragEnd={methodsRef.current.mapDragEnd}
       >
         <canvas
+          onClick={(e) => e.stopPropagation()}
           width={mapSize.width}
           height={mapSize.height}
           ref={canvasRef}

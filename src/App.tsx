@@ -1,5 +1,5 @@
 import { SchemaEditor } from "./components/SchemaEditor";
-import { memo, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import {
   SchemaEditorData,
   SchemaEditorNode,
@@ -34,6 +34,7 @@ function App() {
   const [config, setConfig] = useState<SchemaEditorConfig>({
     canvasPosition: { x: 100, y: 100 },
     zoom: 0.2,
+    showNavigator: false,
   });
 
   const [data, setData] = useState<SchemaEditorData>({
@@ -59,54 +60,66 @@ function App() {
 
   const [text, setText] = useState("test");
 
-  const selected = useMemo(() => config?.selected, [config?.selected]);
+  // const selected = useMemo(() => config?.selected, [config?.selected]);
 
   return (
     <div className={style.App}>
       <button onClick={() => setData({ nodes: generateNodes(1000) })}>
         Random
       </button>
+      <button
+        onClick={() =>
+          setConfig((o) => ({ ...o, showNavigator: !o.showNavigator }))
+        }
+      >
+        Toggle Map
+      </button>
       <div style={{ width: "1000px", height: "600px", position: "relative" }}>
         <div style={{ fontSize: "8px" }}>{JSON.stringify(config)}</div>
         <button onClick={() => setText(text + "bla")}>{text}</button>
         <SchemaEditor
           config={config}
-          onChangeConfig={(c: Partial<SchemaEditorConfig>) =>
-            setConfig((o) => ({ ...o, ...c }))
-          }
+          onChangeConfig={useCallback(
+            (c: Partial<SchemaEditorConfig>) =>
+              setConfig((o) => ({ ...o, ...c })),
+            []
+          )}
           data={data}
-          onSelect={(data) => setConfig((o) => ({ ...o, selected: data }))}
-          // onSelect={(ids: SchemaEditorNode["id"][]) => {
-          //   setData({
-          //     ...data,
-          //     nodes: data.nodes?.map((node) =>
-          //       ids.includes(node.id)
-          //         ? {
-          //             ...node,
-          //             position: {
-          //               x: -100,
-          //               y: -100,
-          //             },
-          //           }
-          //         : node
-          //     ),
-          //   });
-          // }}
+          onSelect={useCallback(
+            (selected: string[]) => setConfig((o) => ({ ...o, selected })),
+            []
+          )}
         >
           {useMemo(
-            () => (data) => {
+            () => (data, selected) => {
               return (
                 <SampleNode
                   data={data}
-                  selected={!!selected?.includes(data.id)}
+                  selected={!!selected}
                   setText={setText}
                   text={text}
                 ></SampleNode>
               );
             },
-            [selected, text]
+            [text]
           )}
         </SchemaEditor>
+
+        {/* <SchemaEditor data={data}>
+          {useMemo(
+            () => (data, selected) => {
+              return (
+                <SampleNode
+                  data={data}
+                  selected={!!selected}
+                  setText={setText}
+                  text={text}
+                ></SampleNode>
+              );
+            },
+            [text]
+          )}
+        </SchemaEditor> */}
       </div>
     </div>
   );

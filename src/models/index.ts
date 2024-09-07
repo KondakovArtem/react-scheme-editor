@@ -28,6 +28,7 @@ export interface SchemaEditorConfig {
   canvasPosition?: Position;
   zoom?: number;
   selected?: SchemaEditorNode["id"][];
+  showNavigator?: boolean;
 }
 
 export interface SchemaEditorProps {
@@ -122,8 +123,14 @@ export enum SchemaEditorNodeLinkArrow {
 }
 
 export enum EDraggingMode {
-  canvas = 'canvas',
-  selection = 'selection',
-  item = 'item',
-  none = 'none',
+  /** Dragging for main canvas */
+  canvas = "canvas",
+  /** Dragging for selection box */
+  selection = "selection",
+  /** Dragging for node item */
+  item = "item",
+  /** Dragging for map */
+  navigator = "navigator",
+  /** No Dragging */
+  none = "none",
 }
