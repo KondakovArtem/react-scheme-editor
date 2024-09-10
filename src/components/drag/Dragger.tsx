@@ -2,31 +2,26 @@ import {
   FC,
   MutableRefObject,
   PropsWithChildren,
-  useMemo,
+  useEffect,
   useRef,
-  useState,
 } from "react";
 
-import { Position } from "../../models";
-import { MouseTouchEvent } from "./DragItem";
+import { MouseTouchEvent, Position } from "../../models";
 
-import { createStateContextFactory } from "../../context/context.factory";
-import { useAtomValue } from "jotai";
+// import { createStateContextFactory } from "../../context/context.factory";
+import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import { canvasPositionAtom } from "../../context/canvasPosition.context";
 import { zoomAtom } from "../../context/zoom.context";
 
 export interface IDragItem {
-  dragStart?: (pos: IDraggingEvent) => void;
-  dragMove?: (pos: IDraggingEvent) => void;
-  dragEnd?: (pos: IDraggingEvent) => void;
+  dragStart?: (event: IDraggingEvent) => void;
+  dragMove?: (event: IDraggingEvent) => void;
+  dragEnd?: (event: IDraggingEvent) => void;
 }
 
-interface IDraggerContext {
-  dragStart?: (e: MouseEvent | TouchEvent, dragItem: IDragItem) => void;
+export interface IDraggerContext {
+  draggerInit?: (e: MouseEvent | TouchEvent, dragItem: IDragItem) => void;
 }
-
-export const { Provider: DraggerProvider, useStateContext: useDragger } =
-  createStateContextFactory<IDraggerContext>("Dragger");
 
 export interface DraggerProps<T extends HTMLElement = HTMLElement>
   extends PropsWithChildren {
@@ -112,12 +107,16 @@ function prepareDraggingPos(
   };
 }
 
+export const draggerContextAtom = atom<IDraggerContext>({});
+export const draggerEnabledAtom = atom<boolean>(false);
+
 /** Компонент предоставляет контекст для управления перетаскиванием.
  *  Он использует useRef для хранения состояния и методов, связанных с перетаскиванием
  * */
 export const Dragger: FC<DraggerProps> = (props) => {
   const { dragRef, children } = props;
-  const [enabled, setEnabled] = useState(false);
+
+  const [enabled, setEnabled] = useAtom(draggerEnabledAtom);
 
   const canvasPosition = useAtomValue(canvasPositionAtom);
   const zoom = useAtomValue(zoomAtom);
@@ -138,18 +137,20 @@ export const Dragger: FC<DraggerProps> = (props) => {
   Object.assign(stateRef.current, { zoom, canvasPosition, enabled });
 
   const methodRef = useRef({
+    setEnabled,
     dragEndEventListener: (e: MouseTouchEvent) => {
       // e.stopPropagation();
       methodRef.current.dragEnd(e);
     },
-    dragStart: (e: MouseTouchEvent, dragItem: IDragItem) => {
+    draggerInit: (e: MouseTouchEvent, dragItem: IDragItem) => {
       // e.stopPropagation();
+
       const { current: state } = stateRef;
       const { zoom = 1, canvasPosition = { x: 0, y: 0 } } = state;
       const { dragEndEventListener, draggingEventListener } = methodRef.current;
       const draggerRect = dragRef.current?.getBoundingClientRect();
       if (draggerRect) {
-        setEnabled(true);
+        methodRef.current.setEnabled(true);
         state.originPos = prepareDraggingPos(
           {
             x:
@@ -240,7 +241,7 @@ export const Dragger: FC<DraggerProps> = (props) => {
       const event = dragEvent(e);
       event && curDragItem?.dragEnd?.(event);
 
-      setEnabled(false);
+      methodRef.current.setEnabled(false);
       delete stateRef.current.curDragItem;
 
       const el = window;
@@ -256,10 +257,13 @@ export const Dragger: FC<DraggerProps> = (props) => {
     },
   });
 
-  const { dragStart } = methodRef.current;
-  return (
-    <DraggerProvider state={useMemo(() => ({ dragStart }), [dragStart])}>
-      {children}
-    </DraggerProvider>
-  );
+  const setDraggerContext = useSetAtom(draggerContextAtom);
+
+  useEffect(() => {
+    const { draggerInit } = methodRef.current;
+    setDraggerContext({ draggerInit });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return <>{children}</>;
 };

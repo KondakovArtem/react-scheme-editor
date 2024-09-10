@@ -1,12 +1,13 @@
 import { SchemaEditor } from "./components/SchemaEditor";
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, PropsWithChildren, useCallback, useMemo, useState } from "react";
 import {
   SchemaEditorData,
   SchemaEditorNode,
   SchemaEditorConfig,
+  SchemaEditorProps,
 } from "./models";
 import "normalize.css";
-import style from "./App.module.scss";
+import "./App.scss";
 
 function generateNodes(count: number) {
   const nodes = [];
@@ -63,7 +64,7 @@ function App() {
   // const selected = useMemo(() => config?.selected, [config?.selected]);
 
   return (
-    <div className={style.App}>
+    <div className="App">
       <button onClick={() => setData({ nodes: generateNodes(1000) })}>
         Random
       </button>
@@ -78,17 +79,24 @@ function App() {
         <div style={{ fontSize: "8px" }}>{JSON.stringify(config)}</div>
         <button onClick={() => setText(text + "bla")}>{text}</button>
         <SchemaEditor
+          data={data}
           config={config}
-          onChangeConfig={useCallback(
+          onChangeConfig={useCallback<
+            NonNullable<SchemaEditorProps["onChangeConfig"]>
+          >(
             (c: Partial<SchemaEditorConfig>) =>
               setConfig((o) => ({ ...o, ...c })),
             []
           )}
-          data={data}
-          onSelect={useCallback(
-            (selected: string[]) => setConfig((o) => ({ ...o, selected })),
+          onSelect={useCallback<NonNullable<SchemaEditorProps["onSelect"]>>(
+            (selected) => setConfig((c) => ({ ...c, selected })),
             []
           )}
+          onChangeData={useCallback<
+            NonNullable<SchemaEditorProps["onChangeData"]>
+          >((data) => {
+            setData((d) => ({ ...d, ...data }));
+          }, [])}
         >
           {useMemo(
             () => (data, selected) => {
@@ -131,20 +139,22 @@ const SampleNode = memo(
     selected,
     text,
     setText,
+    children,
   }: {
     data: SchemaEditorNode;
     selected?: boolean;
     text: string;
     setText(v: string): void;
-  }) => {
+  } & PropsWithChildren) => {
     console.log(`render simple ${data.id}`);
 
     return (
-      <div className={selected ? style.selected : ""}>
+      <div>
         <button onClick={() => setText(text + "bla")}>{text}</button>
-        {/* <div>{JSON.stringify(config)}</div> */}
-        {data.type === "simple" && <div>simple{data.id}</div>}
-        {data.type === "simple2" && <div>simple2{data.id}</div>}
+        {data.type === "simple" && <div>simple={data.id}</div>}
+        {data.type === "simple2" && <div>simple2={data.id}</div>}
+        {/* <div>sample selected={selected + ""}</div> */}
+        {children}
       </div>
     );
   }

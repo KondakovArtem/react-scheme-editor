@@ -5,9 +5,10 @@ import { SchemaEditorProps } from "../models";
 
 import { SchemaEditorCanvas } from "./SchemaEditorCanvas";
 
-import { Provider, useSetAtom, WritableAtom } from "jotai";
+import { Provider, useAtom, useSetAtom, WritableAtom } from "jotai";
 import { configAtom } from "../context";
 import { methodsAtom } from "../context/methods.context";
+import { dataAtom } from "../context/data.context";
 
 const AtomsHydrator = ({
   atomValues,
@@ -23,7 +24,12 @@ const AtomsHydrator = ({
 export const SchemaEditor: FC<SchemaEditorProps> = ({ children, ...props }) => {
   return (
     <Provider>
-      <AtomsHydrator atomValues={[[configAtom, props.config]] as any}>
+      <AtomsHydrator
+        atomValues={[
+          [configAtom, props.config],
+          [dataAtom, props.data],
+        ]}
+      >
         <SchemaEditorComponent {...props}>{children}</SchemaEditorComponent>
       </AtomsHydrator>
     </Provider>
@@ -31,13 +37,14 @@ export const SchemaEditor: FC<SchemaEditorProps> = ({ children, ...props }) => {
 };
 
 export const SchemaEditorComponent: FC<SchemaEditorProps> = memo((props) => {
-  const { onChangeConfig, children, onSelect } = props;
-  debugger;
+  const { onChangeConfig, children, onSelect, onChangeData } = props;
   const methodsRef = useRef({ onChangeConfig, onSelect });
   Object.assign(methodsRef.current, { onChangeConfig, onSelect });
 
   const setConfig = useSetAtom(configAtom);
   useEffect(() => setConfig(props?.config), [props?.config, setConfig]);
+  const [data, setData] = useAtom(dataAtom);
+  useEffect(() => setData(props?.data), [props?.data, setData]);
 
   const setMethods = useSetAtom(methodsAtom);
 
@@ -47,30 +54,11 @@ export const SchemaEditorComponent: FC<SchemaEditorProps> = memo((props) => {
         methodsRef.current.onChangeConfig?.({ canvasPosition }),
       onChangeConfig: (...args) => methodsRef.current.onChangeConfig?.(...args),
       onSelect,
+      onChangeData,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [onSelect, setMethods, onChangeData]);
 
-  const onSelectRef = useRef(props.onSelect);
-  onSelectRef.current = props.onSelect;
-
-  return (
-    <SchemaEditorCanvas data={props.data}>{children}</SchemaEditorCanvas>
-    // <SchemaEditorMethodsContext.Provider
-    //   value={useMemo(
-    //     () => ({
-    //       onDragEnd: ({ position: canvasPosition }) =>
-    //         methodsRef.current.onChangeConfig?.({ canvasPosition }),
-    //       onChangeConfig: (...args) =>
-    //         methodsRef.current.onChangeConfig?.(...args),
-    //       onSelect,
-    //     }),
-    //     []
-    //   )}
-    // >
-
-    // </SchemaEditorMethodsContext.Provider>
-  );
+  return <SchemaEditorCanvas data={data}>{children}</SchemaEditorCanvas>;
 });
 
 SchemaEditor.displayName = "SchemaEditor";

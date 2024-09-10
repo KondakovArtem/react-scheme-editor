@@ -15,7 +15,7 @@
   --schema-editor-navigator-map-stroke: #c0c8fbe8;
 }
 
-.canvas {
+.schema-editor__canvas {
   position: relative;
   background-image: var(--schema-editor-canvas-bg-image);
   background-size: 25px 25px;
@@ -28,7 +28,7 @@
   height: 100%;
 }
 
-.drag {
+.schema-editor__drag {
   text-align: left;
   width: 100%;
   height: 100%;

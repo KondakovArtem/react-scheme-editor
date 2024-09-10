@@ -7,16 +7,14 @@ import {
   useRef,
 } from "react";
 
-import { IDragItem, useDragger } from "./Dragger";
+import { draggerContextAtom, IDraggerContext, IDragItem } from "./Dragger";
 import { debounce } from "../../utils/debounce";
-
-export type MouseTouchEvent = (MouseEvent | TouchEvent) & {
-  editorStopped?: boolean;
-};
+import { EMouseButton, MouseTouchEvent } from "../../models";
+import { useAtomValue } from "jotai";
 
 export interface DragOptions {
   delay: number;
-  button: 0 | 1 | 2;
+  button: EMouseButton[];
 }
 
 export type DragItemProps<T extends HTMLElement = HTMLElement> = IDragItem &
@@ -30,7 +28,7 @@ export type DragItemProps<T extends HTMLElement = HTMLElement> = IDragItem &
  *  Он использует контекст DraggerContext для взаимодействия с Dragger */
 export const DragItem: FC<DragItemProps> = memo(
   ({ dragOptions, itemRef, children, dragStart, dragMove, dragEnd }) => {
-    const dragCtx = useDragger();
+    const { draggerInit } = useAtomValue(draggerContextAtom);
 
     const dragOptionsRef = useRef(dragOptions);
     dragOptionsRef.current = dragOptions;
@@ -41,11 +39,13 @@ export const DragItem: FC<DragItemProps> = memo(
         downItemDebounce: ReturnType<typeof debounce>;
         stopHandler(): void;
         downItem(e: MouseTouchEvent): void;
+        draggerInit: IDraggerContext["draggerInit"];
       }
     > = useRef({
       dragStart,
       dragMove,
       dragEnd,
+      draggerInit,
       startHandler: (e: MouseTouchEvent): void => {
         e.stopPropagation();
         e.preventDefault();
@@ -59,8 +59,8 @@ export const DragItem: FC<DragItemProps> = memo(
       downItem: (e: MouseTouchEvent) => {
         const { dragStart, dragMove, dragEnd } = methodRef.current;
         const { button } = dragOptionsRef.current ?? {};
-        if ((e as MouseEvent).button === (button ?? 0)) {
-          dragCtx?.dragStart?.(e, {
+        if (!button || button.includes((e as MouseEvent).button)) {
+          methodRef.current?.draggerInit?.(e, {
             dragStart,
             dragMove,
             dragEnd,
@@ -68,6 +68,7 @@ export const DragItem: FC<DragItemProps> = memo(
         }
       },
     });
+    Object.assign(methodRef.current, { draggerInit });
 
     const { startHandler, stopHandler } = methodRef.current;
 

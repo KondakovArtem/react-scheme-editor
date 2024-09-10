@@ -7,17 +7,32 @@ import {
   useMemo,
   memo,
 } from "react";
-import type { SchemaEditorNode } from "../../models";
+import {
+  EDraggingMode,
+  EMouseButton,
+  Rect,
+  type SchemaEditorNode,
+} from "../../models";
 import "./SchemaNode.scss";
 
 import { useResize } from "../../hooks/useResize";
 import { useSetAtom } from "jotai";
-import { nodeRectsAtom } from "../../context/rects.context";
+import { NodeRects, updateRectsAtom } from "../../context/rects.context";
 import {
-  onSelectNodeAtom,
+  onClickNodeAtom,
+  onDownNodeAtom,
   selectedNodeAtom,
 } from "../../context/selected.context";
 import { useSelectAtomValue } from "../../utils/atom.selector";
+import { DragItem, DragOptions } from "../drag/DragItem";
+import { IDragItem } from "../drag/Dragger";
+import { dragginModeAtom } from "../../context/draggingMode.context";
+import {
+  dragNodePositionAtom,
+  updateDragNodePositionAtom,
+} from "../../context/dragNodePosition.context";
+import { updateDataNodePositionAtom } from "../../context/data.context";
+import { isEmpty } from "../../utils/isEmpty";
 
 function nodeStyles(position: SchemaEditorNode["position"]): CSSProperties {
   const { x = 0, y = 0 } = position ?? {};
@@ -25,6 +40,11 @@ function nodeStyles(position: SchemaEditorNode["position"]): CSSProperties {
     transform: `translate(${Math.round(x)}px, ${Math.round(y)}px)`,
   };
 }
+
+const DRAG_NODE_OPTIONS: DragOptions = {
+  button: [EMouseButton.left],
+  delay: 100,
+};
 
 export interface SchemaEditorNodeProps {
   data: SchemaEditorNode;
@@ -36,52 +56,95 @@ export const SchemaNode: FC<
     children?: FC<SchemaEditorNode>;
   }
 > = memo(({ data, children }) => {
-  const dataRef = useRef(data);
-  dataRef.current = data;
-  const ref = useRef<HTMLDivElement>(null);
+  const updateRects = useSetAtom(updateRectsAtom);
+  const onClickNode = useSetAtom(onClickNodeAtom);
+  const { id, position } = data;
 
-  // const [selected, onSelect] = useAtom(selectedNodeAtom);
-  const { id } = data;
+  const setDraggingMode = useSetAtom(dragginModeAtom);
+  const setDragNodePosition = useSetAtom(dragNodePositionAtom);
+  const updateDragNodePosition = useSetAtom(updateDragNodePositionAtom);
+  const updateDataNodePosition = useSetAtom(updateDataNodePositionAtom);
 
+  const dragPosition = useSelectAtomValue(
+    dragNodePositionAtom,
+    (drag) => drag[id],
+    [id]
+  );
   const active = useSelectAtomValue(
     selectedNodeAtom,
     (s) => s?.includes(id) ?? false,
     [id]
   );
+  const onDownNode = useSetAtom(onDownNodeAtom);
 
-  const setRects = useSetAtom(nodeRectsAtom);
+  const stateRef = useRef({
+    data,
+    nodeDragStart: ((e) => {
+      onDownNode({ e: e.e, id });
+      setDraggingMode(EDraggingMode.item);
+    }) as IDragItem["dragStart"],
+    nodeDragMode: ((e) => updateDragNodePosition(e)) as IDragItem["dragMove"],
+    nodeDragEnd: ((e) => {
+      setTimeout(() => setDraggingMode(EDraggingMode.none));
+      updateDataNodePosition();
+      setDragNodePosition({});
+    }) as IDragItem["dragEnd"],
+  });
+  Object.assign(stateRef.current, { data });
+
+  const ref = useRef<HTMLDivElement>(null);
+
   useResize({
     ref,
     onResize: useCallback(
-      ({ width, height }: DOMRect) =>
-        setRects?.({
-          [data.id]: { width, height, ...dataRef.current.position },
-        }),
-      [data.id, setRects]
+      ({ width, height, x, y }: Partial<Rect>) => {
+        const newRect: Partial<Rect> = {};
+        if (x !== undefined) newRect.x = x;
+        if (y !== undefined) newRect.y = y;
+        if (width !== undefined) newRect.width = width;
+        if (height !== undefined) newRect.height = height;
+        updateRects?.({
+          [id]: isEmpty(newRect) ? undefined : newRect,
+        } as NodeRects);
+      },
+      [id, updateRects]
     ),
+    position,
   });
 
-  const nodeStyle = useMemo(() => nodeStyles(data.position), [data.position]);
-  const onSelectNode = useSetAtom(onSelectNodeAtom);
+  const nodeStyle = useMemo(
+    () => nodeStyles(dragPosition ?? position),
+    [position, dragPosition]
+  );
 
   const onClick = useCallback<MouseEventHandler>(
     (e) => {
       e.stopPropagation();
-      onSelectNode({ e, ids: [id] });
+      onClickNode({ e, ids: [id] });
     },
-    [id, onSelectNode]
+    [id, onClickNode]
   );
-  console.log("render SchemaNode");
 
   const classes = useMemo(
     () => ["schema-editor__node", active ? "active" : ""].join(" "),
     [active]
   );
 
+  const { nodeDragStart, nodeDragEnd, nodeDragMode } = stateRef.current;
+
   return (
-    <div onClick={onClick} ref={ref} className={classes} style={nodeStyle}>
-      {children && children(data, active)}
-    </div>
+    <>
+      <DragItem
+        itemRef={ref}
+        dragStart={nodeDragStart}
+        dragEnd={nodeDragEnd}
+        dragMove={nodeDragMode}
+        dragOptions={DRAG_NODE_OPTIONS}
+      ></DragItem>
+      <div ref={ref} className={classes} onClick={onClick} style={nodeStyle}>
+        {children && children(data, active)}
+      </div>
+    </>
   );
 });
 

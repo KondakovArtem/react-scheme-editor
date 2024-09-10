@@ -1,8 +1,10 @@
 import type { MouseEvent } from "react";
-import { SchemaEditorNode } from "../models";
+import { EDraggingMode, MouseTouchEvent, SchemaEditorNode } from "../models";
 import { atom } from "jotai";
 import { configAtom } from ".";
 import { isEqual } from "../utils/isEqual";
+import { methodsAtom } from "./methods.context";
+import { dragginModeAtom } from "./draggingMode.context";
 
 interface SelectNodeDispatcherData {
   e: MouseEvent;
@@ -16,20 +18,48 @@ export const selectedNodeAtom = atom(
     set(configAtom, { ...get(configAtom), selected })
 );
 
-export const onSelectNodeAtom = atom(
+export const onClickNodeAtom = atom(
   null,
   (get, set, { e, ids }: SelectNodeDispatcherData) => {
-    const selected = get(selectedNodeAtom);
-    let newSelected = [];
-    if (e.ctrlKey && ids.length === 1) {
-      newSelected = selected?.includes(ids[0])
-        ? selected.filter((i) => i !== ids[0])
-        : [...(selected ?? []), ids[0]];
-    } else {
-      newSelected = ids;
+    if (get(dragginModeAtom) === EDraggingMode.none) {
+      const selected = get(selectedNodeAtom);
+      const { onSelect } = get(methodsAtom) ?? {};
+      let newSelected = [];
+      if (e.ctrlKey && ids.length === 1) {
+        newSelected = selected?.includes(ids[0])
+          ? selected.filter((i) => i !== ids[0])
+          : [...(selected ?? []), ids[0]];
+      } else {
+        newSelected = ids;
+      }
+      if (!isEqual(selected, newSelected)) {
+        set(selectedNodeAtom, newSelected);
+        onSelect?.(newSelected);
+      }
     }
-    if (!isEqual(selected, newSelected)) {
-      set(selectedNodeAtom, newSelected);
+  }
+);
+
+export const onDownNodeAtom = atom(
+  null,
+  (get, set, { e, id }: { e: MouseTouchEvent; id: string }) => {
+    if (get(dragginModeAtom) === EDraggingMode.none) {
+      const selected = get(selectedNodeAtom);
+      const { onSelect } = get(methodsAtom) ?? {};
+
+      if (selected?.includes(id)) {
+        return;
+      }
+      let newSelected = [];
+      if (e.ctrlKey && id) {
+        newSelected = [...(selected ?? []), id];
+      } else {
+        newSelected = [id];
+      }
+      if (!isEqual(selected, newSelected)) {
+        set(selectedNodeAtom, newSelected);
+        onSelect?.(newSelected);
+      }
     }
   }
 );

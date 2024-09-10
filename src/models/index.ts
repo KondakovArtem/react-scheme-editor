@@ -36,6 +36,7 @@ export interface SchemaEditorProps {
   data?: SchemaEditorData;
   onChangeConfig?: (config: Partial<SchemaEditorConfig>) => void;
   onSelect?(ids: SchemaEditorNode["id"][]): void;
+  onChangeData?(data: SchemaEditorData): void;
   children: FC<SchemaEditorNode>;
 }
 
@@ -133,4 +134,14 @@ export enum EDraggingMode {
   navigator = "navigator",
   /** No Dragging */
   none = "none",
+}
+
+export type MouseTouchEvent = (MouseEvent | TouchEvent) & {
+  editorStopped?: boolean;
+};
+
+export enum EMouseButton {
+  left = 0,
+  middle = 1,
+  right = 2,
 }

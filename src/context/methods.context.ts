@@ -1,5 +1,5 @@
 import { MouseEvent } from "react";
-import type { Position, SchemaEditorConfig } from "../models";
+import type { Position, SchemaEditorConfig, SchemaEditorData } from "../models";
 import { atom } from "jotai";
 
 export interface ISchemaEditorMethodsContext {
@@ -8,6 +8,7 @@ export interface ISchemaEditorMethodsContext {
   onDragMove?(event: MouseEvent): void;
   onDragEnd?(data: { event: MouseEvent; position: Position }): void;
   onSelect?(ids: string[]): void;
+  onChangeData?(data: SchemaEditorData): void;
 }
 
 // export const SchemaEditorMethodsContext = createContext<

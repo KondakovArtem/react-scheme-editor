@@ -10,7 +10,7 @@ export const CanvasMover: FC<
   PropsWithChildren<{
     canvasRef: MutableRefObject<HTMLDivElement | null>;
     dragRef: MutableRefObject<HTMLDivElement | null>;
-    positionRef: MutableRefObject<Position | undefined>;
+    positionRef?: MutableRefObject<Position | undefined>;
   }>
 > = ({ children, canvasRef, dragRef, positionRef }) => {
   const canvasPosition = useAtomValue(canvasPositionAtom);
