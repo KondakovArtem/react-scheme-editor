@@ -11185,6 +11185,7 @@ __metadata:
     react-dom: "npm:^18.3.1"
     react-scripts: "npm:5.0.1"
     sass: "npm:^1.77.8"
+    svg-points: "npm:^6.0.1"
     typescript: "npm:^4.9.5"
     web-vitals: "npm:^2.1.4"
   languageName: unknown
@@ -12531,6 +12532,13 @@ __metadata:
   version: 2.0.4
   resolution: "svg-parser@npm:2.0.4"
   checksum: 10c0/02f6cb155dd7b63ebc2f44f36365bc294543bebb81b614b7628f1af3c54ab64f7e1cec20f06e252bf95bdde78441ae295a412c68ad1678f16a6907d924512b7a
+  languageName: node
+  linkType: hard
+
+"svg-points@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "svg-points@npm:6.0.1"
+  checksum: 10c0/a53ddad007a19cc43869284525b4cc5beeba37a6d9b350b7b8d4940a5f5a520189ea9381071ce09e5c49f08faa46b2c11183a8549d9d0223ffdf64157799b1fc
   languageName: node
   linkType: hard
 

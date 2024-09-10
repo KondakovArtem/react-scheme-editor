@@ -1,12 +1,12 @@
 import { atom } from "jotai";
-import { Rect, TRecord } from "../models";
+import { TRect, TRecord } from "../models";
 
-export type NodeRects = TRecord<Rect | undefined>;
+export type NodeRects = TRecord<TRect | undefined>;
 export const nodeRectsAtom = atom<NodeRects>({});
 
 export const updateRectsAtom = atom(
   {} as NodeRects,
-  (get, set, newRects: TRecord<Partial<Rect> | undefined>) => {
+  (get, set, newRects: TRecord<Partial<TRect> | undefined>) => {
     const rects = get(nodeRectsAtom);
     const ids = Object.keys(newRects);
 

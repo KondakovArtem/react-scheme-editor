@@ -1,14 +1,14 @@
 import { atom } from "jotai";
-import { Rect } from "../models";
+import { TRect } from "../models";
 import { nodeRectsAtom } from "./rects.context";
 import { IDraggingEvent } from "../components/drag/Dragger";
 import { selectedNodeAtom } from "./selected.context";
 
 import { methodsAtom } from "./methods.context";
 
-export const selectboxRectAtom = atom<Rect | undefined>();
+export const selectboxRectAtom = atom<TRect | undefined>();
 
-function intersects(r1: Rect, r2: Rect): boolean {
+function intersects(r1: TRect, r2: TRect): boolean {
   return !(
     r1.x > r2.x + r2.width ||
     r1.x + r1.width < r2.x ||
@@ -16,7 +16,7 @@ function intersects(r1: Rect, r2: Rect): boolean {
     r1.y + r1.height < r2.y
   );
 }
-function insideRect(inner: Rect, outer: Rect): boolean {
+function insideRect(inner: TRect, outer: TRect): boolean {
   return (
     inner.x >= outer.x &&
     inner.x + inner.width <= outer.x + outer.width &&

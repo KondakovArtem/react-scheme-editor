@@ -10,7 +10,18 @@ export enum TangentDirections {
   UP = "up",
 }
 
+export const ARROW_WIDTH = 28;
+export const ARROW_HEIGHT = 14;
+export const ARROW_DEFAULT_LINE_COLOR = "var(--secondary-default)";
+export const ARROW_DEFAULT_LINE_COLOR_HOVER = "var(--primary-lightest)";
+export const ARROW_DEFAULT_LINE_COLOR_ACTIVE = "var(--primary-default)";
+export const ZOOM_MIN_CONSTRAINTS: ValueConstraints = [0.05, 1];
+export const ZOOM_MAX_CONSTRAINTS: ValueConstraints = [1, 10];
+export const ZOOM_STEP_CONSTRAINTS: ValueConstraints = [0.01, 0.5];
+
 export type TRecord<T = any> = Record<string, T>;
+
+export type ValueConstraints = [number, number];
 
 export interface Position {
   x: number;
@@ -22,7 +33,7 @@ export interface Size {
   height: number;
 }
 
-export type Rect = Position & Size;
+export type TRect = Position & Size;
 
 export interface SchemaEditorConfig {
   canvasPosition?: Position;
@@ -144,4 +155,15 @@ export enum EMouseButton {
   left = 0,
   middle = 1,
   right = 2,
+}
+
+export interface SchemaEditorNodeLinkDraft {
+  from: {
+    slotId: string;
+    rect?: DOMRect;
+  };
+  to: {
+    slotId?: string;
+    rect?: DOMRect;
+  };
 }

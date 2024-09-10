@@ -10,7 +10,7 @@ import {
 import {
   EDraggingMode,
   EMouseButton,
-  Rect,
+  TRect,
   type SchemaEditorNode,
 } from "../../models";
 import "./SchemaNode.scss";
@@ -97,8 +97,8 @@ export const SchemaNode: FC<
   useResize({
     ref,
     onResize: useCallback(
-      ({ width, height, x, y }: Partial<Rect>) => {
-        const newRect: Partial<Rect> = {};
+      ({ width, height, x, y }: Partial<TRect>) => {
+        const newRect: Partial<TRect> = {};
         if (x !== undefined) newRect.x = x;
         if (y !== undefined) newRect.y = y;
         if (width !== undefined) newRect.width = width;

@@ -1,9 +1,9 @@
 import { useEffect, MutableRefObject, useRef } from "react";
-import { Position, Rect } from "../models";
+import { Position, TRect } from "../models";
 
 export interface UseResize<T = HTMLElement> {
   ref: MutableRefObject<T | null>;
-  onResize?: (rect: Partial<Rect>) => void;
+  onResize?: (rect: Partial<TRect>) => void;
   position?: Position;
 }
 
