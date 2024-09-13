@@ -64,11 +64,3 @@ export const clearDragPointerAtom = atom(null, (get, set) => {
     linkPointer: {},
   });
 });
-
-// export const dragPointerAtom = atom<
-//   | {
-//       linkId: string;
-//       pointIndex: number;
-//     }
-//   | undefined
-// >();

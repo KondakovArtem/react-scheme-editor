@@ -8,6 +8,7 @@ export const dataAtom = atom<SchemaEditorData | undefined>(undefined);
 export const updateDataNodePositionAtom = atom(null, (get, set) => {
   const data = get(dataAtom);
   const dragPosition = get(dragPositionAtom);
+  
   const { onChangeData } = get(methodsAtom) ?? {};
 
   const newData = {
@@ -23,7 +24,9 @@ export const updateDataNodePositionAtom = atom(null, (get, set) => {
     }),
   };
   set(dataAtom, newData);
+
   onChangeData?.(newData);
+  
 });
 
 export const updateLinkPointsAtom = atom(null, (get, set) => {
