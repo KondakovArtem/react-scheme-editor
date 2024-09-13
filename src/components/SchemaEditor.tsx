@@ -5,10 +5,18 @@ import { SchemaEditorProps } from "../models";
 
 import { SchemaEditorCanvas } from "./SchemaEditorCanvas";
 
-import { Provider, useAtom, useSetAtom, WritableAtom } from "jotai";
+import {
+  Provider,
+  useAtom,
+  useAtomValue,
+  useSetAtom,
+  WritableAtom,
+} from "jotai";
 import { configAtom } from "../context";
 import { methodsAtom } from "../context/methods.context";
 import { dataAtom } from "../context/data.context";
+import { dragPositionAtom } from "../context/dragNodePosition.context";
+import { nodeRectsAtom } from "../context/rects.context";
 
 const AtomsHydrator = ({
   atomValues,
@@ -38,8 +46,8 @@ export const SchemaEditor: FC<SchemaEditorProps> = ({ children, ...props }) => {
 
 export const SchemaEditorComponent: FC<SchemaEditorProps> = memo((props) => {
   const { onChangeConfig, children, onSelect, onChangeData } = props;
-  const methodsRef = useRef({ onChangeConfig, onSelect });
-  Object.assign(methodsRef.current, { onChangeConfig, onSelect });
+  const methodsRef = useRef({ onChangeConfig });
+  Object.assign(methodsRef.current, { onChangeConfig });
 
   const setConfig = useSetAtom(configAtom);
   useEffect(() => setConfig(props?.config), [props?.config, setConfig]);
@@ -52,13 +60,30 @@ export const SchemaEditorComponent: FC<SchemaEditorProps> = memo((props) => {
     setMethods({
       onDragEnd: ({ position: canvasPosition }) =>
         methodsRef.current.onChangeConfig?.({ canvasPosition }),
-      onChangeConfig: (...args) => methodsRef.current.onChangeConfig?.(...args),
+      onChangeConfig,
       onSelect,
       onChangeData,
     });
-  }, [onSelect, setMethods, onChangeData]);
+  }, [onSelect, setMethods, onChangeData, onChangeConfig]);
 
-  return <SchemaEditorCanvas data={data}>{children}</SchemaEditorCanvas>;
+  const dragPosition = useAtomValue(dragPositionAtom);
+  const nodeRects = useAtomValue(nodeRectsAtom);
+
+  return (
+    <>
+      <SchemaEditorCanvas data={data}>{children}</SchemaEditorCanvas>
+      <div>
+        <pre style={{ fontSize: "8px", textAlign: "left" }}>
+          {JSON.stringify(nodeRects, null, "\t")}
+        </pre>
+      </div>
+      <div>
+        <pre style={{ fontSize: "8px" }}>
+          {JSON.stringify(dragPosition, null, "\t")}
+        </pre>
+      </div>
+    </>
+  );
 });
 
 SchemaEditor.displayName = "SchemaEditor";

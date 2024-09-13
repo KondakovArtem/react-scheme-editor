@@ -144,7 +144,6 @@ export const Dragger: FC<DraggerProps> = (props) => {
     },
     draggerInit: (e: MouseTouchEvent, dragItem: IDragItem) => {
       // e.stopPropagation();
-
       const { current: state } = stateRef;
       const { zoom = 1, canvasPosition = { x: 0, y: 0 } } = state;
       const { dragEndEventListener, draggingEventListener } = methodRef.current;

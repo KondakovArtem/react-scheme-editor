@@ -3,7 +3,7 @@ import { Point } from "./point";
 
 type RectSide = "left" | "right" | "top" | "bottom";
 
-export class Rect {
+export class Rect implements TRect {
   public width!: number;
   public height!: number;
   public x!: number;
@@ -20,6 +20,10 @@ export class Rect {
   }
   public get right(): number {
     return this.x + this.width;
+  }
+
+  public static from(data: TRect) {
+    return new Rect(data);
   }
 
   constructor(
@@ -123,14 +127,20 @@ export class Rect {
     return new Point(this.x, this.y + this.height / 2);
   }
 
+  /** Метод определяет, какие точки находятся на заданном направлении от исходной точки и затем смещает одну
+   *  из этих точек на указанное расстояние. Он возвращает обе точки: исходную точку и смещённую. */
   public getRelevantSidePoints(
-    tangentDirection: TangentDirections,
+    /**  Направление, в котором нужно найти точку (например, вверх, вправо, вниз, влево). */
+    tangentDirection: TangentDirections[],
+    /**  Исходная точка, от которой мы будем искать точку на заданном направлении */
     point: Point,
+    /**  Расстояние, на которое нужно сместить найденную точку */
     shift: number
   ): {
     point: Point;
     shiftedPoint: Point;
   } {
+    // получить точку в указанном направлении от исходной точки (point) и направление этого смещения (direction).
     const { point: sidePoint, direction } = this.getSidePoint(
       tangentDirection,
       point
@@ -160,12 +170,14 @@ export class Rect {
   }
 
   private getSidePoint(
-    tangentDirection: TangentDirections,
+    tangentDirections: TangentDirections[],
     point: Point
   ): {
     point: Point;
     direction: TangentDirections;
   } {
+    const tangentDirection = tangentDirections[0];
+
     switch (tangentDirection) {
       case TangentDirections.UP:
         return {

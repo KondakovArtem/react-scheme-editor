@@ -13,6 +13,23 @@
   --schema-editor-selection-box-bg: #c9dd1534;
   --schema-editor-navigator-map-bg: #c0c8fb40;
   --schema-editor-navigator-map-stroke: #c0c8fbe8;
+
+  --schema-editor-line-color: rgb(163, 163, 255);
+  --schema-editor-line-handle-color: transparent;
+  --schema-editor-line-color-hover: rgb(105, 105, 216);
+  --schema-editor-line-handle-color-hover: transparent;
+  --schema-editor-line-color-active: rgb(73, 73, 173);
+  --schema-editor-line-handle-color-active: transparent;
+  --schema-editor-handle-stroke-width: 10px;
+
+  --schema-editor-line-transition-duration: 0.2s;
+  --schema-editor-stroke-width: 2px;
+
+  --schema-editor-line-point-transition-delay: 0.2s;
+  --schema-editor-line-point-size: 10px;
+  --schema-editor-line-point-opacity: 1;
+  --schema-editor-line-point-shadow: 1px 1px 0.5rem 0 grey;
+  --schema-editor-line-point-bg: white;
 }
 
 .schema-editor__canvas {
@@ -26,6 +43,16 @@
   outline: 0;
   width: 100%;
   height: 100%;
+
+  &--dragging {
+    cursor: grabbing;
+    .schema-editor__link {
+      .schema-editor__point-handler,
+      .schema-editor__link-handle {
+        cursor: grabbing;
+      }
+    }
+  }
 }
 
 .schema-editor__drag {

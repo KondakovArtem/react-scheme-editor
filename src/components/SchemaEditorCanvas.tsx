@@ -1,7 +1,14 @@
-import { FC, memo, MouseEventHandler, useCallback, useRef } from "react";
+import {
+  FC,
+  memo,
+  MouseEventHandler,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 
 import "./SchemaEditor.scss";
-import { useCanvas } from "../hooks/useCanvas";
+
 import {
   EDraggingMode,
   EMouseButton,
@@ -32,7 +39,7 @@ import {
   selectboxRectAtom,
   selectBySelectBoxAtom,
 } from "../context/selectboxRect.context";
-import { nodeRectsAtom } from "../context/rects.context";
+import { SchemaLink } from "./link/SchemaLink";
 
 interface SchemaEditorCanvasProps {
   data?: SchemaEditorData;
@@ -49,7 +56,9 @@ export const SchemaEditorCanvas: FC<SchemaEditorCanvasProps> = memo((props) => {
 
   const showNavigator = useAtomValue(showNavigatorAtom);
 
-  const { ref, canvasRef } = useCanvas<HTMLDivElement>();
+  const ref = useRef<HTMLDivElement | null>(null);
+  const canvasRef = useRef<HTMLDivElement | null>(null);
+
   useResize({ ref, onResize: useSetAtom(canvasSizeAtom) });
 
   const setCanvasPosition = useSetAtom(canvasPositionAtom);
@@ -147,6 +156,21 @@ export const SchemaEditorCanvas: FC<SchemaEditorCanvasProps> = memo((props) => {
     [onSelect, draggingMode, selected, setSelected]
   );
 
+  const canvasClasses = useMemo(
+    () =>
+      [
+        "schema-editor__canvas",
+        ([
+          EDraggingMode.canvas,
+          EDraggingMode.item,
+          EDraggingMode.point,
+        ].includes(draggingMode) &&
+          "schema-editor__canvas--dragging") ||
+          "",
+      ].join(" "),
+    [draggingMode]
+  );
+
   return (
     <>
       <Dragger dragRef={ref}></Dragger>
@@ -162,12 +186,15 @@ export const SchemaEditorCanvas: FC<SchemaEditorCanvasProps> = memo((props) => {
         dragRef={ref}
         positionRef={positionRef}
       ></CanvasMover>
-      <div ref={ref} className="schema-editor__canvas" onClick={clearSelected}>
+      <div ref={ref} className={canvasClasses} onClick={clearSelected}>
         <div ref={canvasRef} className="schema-editor__drag">
           {(data?.nodes ?? []).map((node) => (
             <SchemaNode key={node.id} data={node}>
               {children}
             </SchemaNode>
+          ))}
+          {(data?.links ?? []).map((link) => (
+            <SchemaLink key={link.id} data={link} />
           ))}
         </div>
         {draggingMode === EDraggingMode.selection && <SelectBox></SelectBox>}

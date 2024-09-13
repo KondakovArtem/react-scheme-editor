@@ -1,4 +1,5 @@
 import { FC } from "react";
+import { IDraggingEvent } from "../components/drag/Dragger";
 
 export enum TangentDirections {
   AUTO = "auto",
@@ -34,6 +35,10 @@ export interface Size {
 }
 
 export type TRect = Position & Size;
+export type SlotRect = Position &
+  Size & {
+    directions: TangentDirections[];
+  };
 
 export interface SchemaEditorConfig {
   canvasPosition?: Position;
@@ -72,7 +77,7 @@ export interface SchemaEditorNode<
   Data extends TRecord = TRecord,
   Type extends string = string,
   SlotData extends TRecord = TRecord
-> {
+> extends SchemaEditorNodeSlot<Data> {
   id: string;
   position: Position;
   relativeEntityId?: string;
@@ -92,17 +97,40 @@ export type SchemaEditorNodeSlotVisualDirection = TangentDirections;
 
 export interface SchemaEditorNodeSlot<Data extends TRecord = TRecord> {
   id: string;
-  direction: SchemaEditorNodeSlotDirection;
-  visualDirection?: SchemaEditorNodeSlotVisualDirection;
+  direction?: {
+    [key in SchemaEditorNodeSlotDirection]?: SchemaEditorNodeSlotVisualDirection[];
+  };
+
   data?: Data;
 }
 
 export type SchemaEditorNodeLinkLineType = "solid" | "dashed";
 
+export type SchemaEditorLinkModel = {
+  render(data: { from: SlotRect; to: SlotRect; points: Position[] }): {
+    path: string;
+    points: Position[];
+  };
+  onDrag(data: {
+    from: SlotRect;
+    to: SlotRect;
+    event: IDraggingEvent;
+    pointIndex: number;
+    points: Position[];
+    originPoint: Position;
+  }): Position[];
+};
+
+export enum ESchemaEditorLinkModels {
+  curve = "curve",
+  orthogonal = "orthogonal",
+}
+
 export interface SchemaEditorNodeLink<LinkData extends TRecord = TRecord> {
   id: string;
   title?: string;
   points: Position[];
+  model?: ESchemaEditorLinkModels;
   from: string;
   fromArrow?: SchemaEditorNodeLinkArrow;
   to: string;
@@ -145,6 +173,8 @@ export enum EDraggingMode {
   navigator = "navigator",
   /** No Dragging */
   none = "none",
+  /** Dragging for link point */
+  point = "point",
 }
 
 export type MouseTouchEvent = (MouseEvent | TouchEvent) & {

@@ -5,6 +5,7 @@ import { IDraggingEvent } from "../components/drag/Dragger";
 import { selectedNodeAtom } from "./selected.context";
 
 import { methodsAtom } from "./methods.context";
+import { dataAtom } from "./data.context";
 
 export const selectboxRectAtom = atom<TRect | undefined>();
 
@@ -30,6 +31,8 @@ export const selectBySelectBoxAtom = atom(
   (get, set, event: IDraggingEvent) => {
     const rects = get(nodeRectsAtom);
     const selectedNode = get(selectedNodeAtom) ?? [];
+    const { nodes } = get(dataAtom) ?? {};
+    const allIds = nodes?.map((i) => i.id);
 
     const partial =
       (event.dPos?.handler.x ?? 0) < 0 || (event.dPos?.handler.y ?? 0) < 1;
@@ -47,6 +50,7 @@ export const selectBySelectBoxAtom = atom(
         .map((id) => {
           const rect = rects[id];
           if (
+            allIds?.includes(id) &&
             rect &&
             ((partial && intersects(rect, scaleSelectedBox)) ||
               (!partial && insideRect(rect, scaleSelectedBox)))

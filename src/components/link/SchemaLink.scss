@@ -1,0 +1,85 @@
+@use "sass:math";
+
+.schema-editor__link {
+  svg {
+    position: absolute;
+    overflow: visible !important;
+    pointer-events: none;
+    top: 0;
+    left: 0;
+  }
+
+  path {
+    stroke: var(--schema-editor-line-color);
+    stroke-width: var(--schema-editor-stroke-width);
+    fill: none;
+    transition: var(--schema-editor-line-transition-duration);
+    transition-property: stroke;
+    pointer-events: none;
+
+    // &.filled {
+    //   fill: $schema-editor-line-color;
+    // }
+
+    // &.dashed {
+    //   stroke-dasharray: $schema-editor-stroke-dasharray;
+    // }
+  }
+
+  .schema-editor__link-handle {
+    stroke: var(--schema-editor-line-handle-color);
+    stroke-width: var(--schema-editor-handle-stroke-width);
+    pointer-events: stroke;
+    cursor: pointer;
+  }
+
+  .schema-editor__point-handler {
+    position: absolute;
+    z-index: 2;
+    width: var(--schema-editor-line-point-size);
+    height: var(--schema-editor-line-point-size);
+    top: calc(-1 * var(--schema-editor-line-point-size) / 2);
+    left: calc(-1 * var(--schema-editor-line-point-size) / 2);
+    border-radius: 50%;
+    box-shadow: var(--schema-editor-line-point-shadow);
+    background-color: var(--schema-editor-line-point-bg);
+    opacity: 0;
+    cursor: pointer;
+    transition-delay: var(--schema-editor-line-point-transition-delay);
+    transition-duration: 0.2s;
+    transition-property: opacity;
+  }
+
+  &--hover {
+    path,
+    circle {
+      stroke: var(--schema-editor-line-color-hover);
+      &.filled {
+        fill: var(--schema-editor-line-color-hover);
+      }
+    }
+
+    .schema-editor__link-handle {
+      stroke: var(--schema-editor-line-handle-color-hover);
+    }
+    .schema-editor__point-handler {
+      opacity: var(--schema-editor-line-point-opacity);
+    }
+  }
+  &--active {
+    path,
+    circle {
+      stroke: var(--schema-editor-line-color-active);
+      &.filled {
+        fill: var(--schema-editor-line-color-active);
+      }
+    }
+
+    .schema-editor__link-handle {
+      stroke: var(--schema-editor-line-handle-color-active);
+    }
+    .schema-editor__point-handler {
+      opacity: var(--schema-editor-line-point-opacity);
+    }
+  }
+}

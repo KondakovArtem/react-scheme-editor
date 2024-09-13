@@ -1,4 +1,4 @@
-import { useEffect, MutableRefObject, useRef } from "react";
+import { useEffect, MutableRefObject, useRef, useMemo } from "react";
 import { Position, TRect } from "../models";
 
 export interface UseResize<T = HTMLElement> {
@@ -34,9 +34,12 @@ export function useResize<T extends HTMLElement>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const positionMemo = useMemo(() => position, [position?.x, position?.y]);
+
   useEffect(() => {
-    position && onResizeRef.current?.(position);
-  }, [position]);
+    positionMemo && onResizeRef.current?.(positionMemo);
+  }, [positionMemo]);
 
   return { ref };
 }

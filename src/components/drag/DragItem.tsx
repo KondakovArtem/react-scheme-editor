@@ -13,7 +13,7 @@ import { EMouseButton, MouseTouchEvent } from "../../models";
 import { useAtomValue } from "jotai";
 
 export interface DragOptions {
-  delay: number;
+  delay?: number;
   button: EMouseButton[];
 }
 
@@ -47,9 +47,12 @@ export const DragItem: FC<DragItemProps> = memo(
       dragEnd,
       draggerInit,
       startHandler: (e: MouseTouchEvent): void => {
-        e.stopPropagation();
-        e.preventDefault();
-        methodRef.current.downItemDebounce?.(e);
+        const { button } = dragOptionsRef.current ?? {};
+        if (!button || button.includes((e as MouseEvent).button)) {
+          e.stopPropagation();
+          e.preventDefault();
+          methodRef.current.downItemDebounce?.(e);
+        }
       },
       downItemDebounce: debounce(
         (e) => methodRef.current.downItem(e),

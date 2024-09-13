@@ -18,7 +18,7 @@ export const selectedNodeAtom = atom(
     set(configAtom, { ...get(configAtom), selected })
 );
 
-export const onClickNodeAtom = atom(
+export const onClickElementAtom = atom(
   null,
   (get, set, { e, ids }: SelectNodeDispatcherData) => {
     if (get(dragginModeAtom) === EDraggingMode.none) {

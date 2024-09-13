@@ -1,6 +1,5 @@
 import { Position } from "../models";
 
-
 function squaredLength(start: Point, end: Point): number {
   let x0 = start.x;
   let y0 = start.y;
@@ -43,6 +42,13 @@ export class Point implements Position {
       this.y >= rect.top &&
       this.y <= rect.bottom
     );
+  }
+
+  relative({ x, y }: Position) {
+    return new Point({
+      x: this.x - x,
+      y: this.y - y,
+    });
   }
 
   public magnitude(): number {
