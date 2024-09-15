@@ -15,8 +15,7 @@ import {
 import { configAtom } from "../context";
 import { methodsAtom } from "../context/methods.context";
 import { dataAtom } from "../context/data.context";
-import { dragPositionAtom } from "../context/dragNodePosition.context";
-import { nodeRectsAtom } from "../context/rects.context";
+import { draftLinkAtom } from "../context/dragNodePosition.context";
 
 const AtomsHydrator = ({
   atomValues,
@@ -45,7 +44,7 @@ export const SchemaEditor: FC<SchemaEditorProps> = ({ children, ...props }) => {
 };
 
 export const SchemaEditorComponent: FC<SchemaEditorProps> = memo((props) => {
-  const { onChangeConfig, children, onSelect, onChangeData } = props;
+  const { onChangeConfig, children, onSelect, onChangeData, onAddLink } = props;
   const methodsRef = useRef({ onChangeConfig });
   Object.assign(methodsRef.current, { onChangeConfig });
 
@@ -63,16 +62,21 @@ export const SchemaEditorComponent: FC<SchemaEditorProps> = memo((props) => {
       onChangeConfig,
       onSelect,
       onChangeData,
+      onAddLink,
     });
-  }, [onSelect, setMethods, onChangeData, onChangeConfig]);
+  }, [onSelect, setMethods, onChangeData, onChangeConfig, onAddLink]);
 
-  const dragPosition = useAtomValue(dragPositionAtom);
-  const nodeRects = useAtomValue(nodeRectsAtom);
+  const draftLink = useAtomValue(draftLinkAtom);
 
   return (
     <>
       <SchemaEditorCanvas data={data}>{children}</SchemaEditorCanvas>
       <div>
+        <pre style={{ fontSize: "8px", textAlign: "left" }}>
+          {JSON.stringify(draftLink, null, "\t")}
+        </pre>
+      </div>
+      {/* <div>
         <pre style={{ fontSize: "8px", textAlign: "left" }}>
           {JSON.stringify(nodeRects, null, "\t")}
         </pre>
@@ -81,7 +85,7 @@ export const SchemaEditorComponent: FC<SchemaEditorProps> = memo((props) => {
         <pre style={{ fontSize: "8px" }}>
           {JSON.stringify(dragPosition, null, "\t")}
         </pre>
-      </div>
+      </div> */}
     </>
   );
 });

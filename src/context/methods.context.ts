@@ -9,10 +9,7 @@ export interface ISchemaEditorMethodsContext {
   onDragEnd?(data: { event: MouseEvent; position: Position }): void;
   onSelect?(ids: string[]): void;
   onChangeData?(data: SchemaEditorData): void;
+  onAddLink?(data: { from: string; to: string }): void;
 }
-
-// export const SchemaEditorMethodsContext = createContext<
-//   ISchemaEditorMethodsContext | undefined
-// >(undefined);
 
 export const methodsAtom = atom<ISchemaEditorMethodsContext | undefined>();

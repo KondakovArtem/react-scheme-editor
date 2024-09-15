@@ -26,6 +26,11 @@ export class Rect implements TRect {
     return new Rect(data);
   }
 
+  public toJson(): TRect {
+    const { x, y, width, height } = this;
+    return { x, y, width, height };
+  }
+
   constructor(
     x?: number | Rect | DOMRect | TRect,
     y?: number,

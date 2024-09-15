@@ -40,6 +40,8 @@ import {
   selectBySelectBoxAtom,
 } from "../context/selectboxRect.context";
 import { SchemaLink } from "./link/SchemaLink";
+import { SchemaLinkDraft } from "./link/SchemaLinkDraft";
+// import { SchemaLinkDraft } from "./link/SchemaLinkDraft";
 
 interface SchemaEditorCanvasProps {
   data?: SchemaEditorData;
@@ -196,6 +198,7 @@ export const SchemaEditorCanvas: FC<SchemaEditorCanvasProps> = memo((props) => {
           {(data?.links ?? []).map((link) => (
             <SchemaLink key={link.id} data={link} />
           ))}
+          <SchemaLinkDraft />
         </div>
         {draggingMode === EDraggingMode.selection && <SelectBox></SelectBox>}
         {showNavigator !== false && <Navigator data={data}></Navigator>}

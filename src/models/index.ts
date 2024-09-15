@@ -53,6 +53,7 @@ export interface SchemaEditorProps {
   onChangeConfig?: (config: Partial<SchemaEditorConfig>) => void;
   onSelect?(ids: SchemaEditorNode["id"][]): void;
   onChangeData?(data: SchemaEditorData): void;
+  onAddLink?(data: { from: string; to: string }): void;
   children: FC<SchemaEditorNode>;
 }
 
@@ -189,11 +190,11 @@ export enum EMouseButton {
 
 export interface SchemaEditorNodeLinkDraft {
   from: {
-    slotId: string;
-    rect?: DOMRect;
+    id: string;
+    rect?: SlotRect;
   };
   to: {
-    slotId?: string;
-    rect?: DOMRect;
+    id?: string;
+    rect?: SlotRect;
   };
 }

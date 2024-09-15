@@ -2,22 +2,26 @@ import { atom } from "jotai";
 import { SchemaEditorData } from "../models";
 import { dragPositionAtom } from "./dragNodePosition.context";
 import { methodsAtom } from "./methods.context";
+import { nodeRectsAtom } from "./rects.context";
 
 export const dataAtom = atom<SchemaEditorData | undefined>(undefined);
 
 export const updateDataNodePositionAtom = atom(null, (get, set) => {
   const data = get(dataAtom);
-  const dragPosition = get(dragPositionAtom);
-  
+  // const dragPosition = get(dragPositionAtom);
+  const rects = get(nodeRectsAtom);
+
   const { onChangeData } = get(methodsAtom) ?? {};
 
   const newData = {
     ...data,
     nodes: data?.nodes?.map((node) => {
-      if (dragPosition.node[node.id]) {
+      const rect = rects[node.id];
+      if (rect) {
+        const { x, y } = rect;
         return {
           ...node,
-          position: dragPosition.node[node.id],
+          position: { x, y },
         };
       }
       return node;
@@ -26,7 +30,6 @@ export const updateDataNodePositionAtom = atom(null, (get, set) => {
   set(dataAtom, newData);
 
   onChangeData?.(newData);
-  
 });
 
 export const updateLinkPointsAtom = atom(null, (get, set) => {

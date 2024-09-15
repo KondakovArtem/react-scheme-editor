@@ -20,7 +20,6 @@ export interface DragOptions {
 export type DragItemProps<T extends HTMLElement = HTMLElement> = IDragItem &
   PropsWithChildren & {
     itemRef: MutableRefObject<T | null>;
-    delay?: number;
     dragOptions?: DragOptions;
   };
 

@@ -63,7 +63,6 @@ export const selectBySelectBoxAtom = atom(
       if (event.e.ctrlKey) {
         newSelectedNodes = [...newSelectedNodes, ...selectedNode];
       }
-      //   newSelectedNodes = uniq(newSelectedNodes as string[]);
       set(selectedNodeAtom, newSelectedNodes);
       get(methodsAtom)?.onSelect?.(newSelectedNodes);
     }

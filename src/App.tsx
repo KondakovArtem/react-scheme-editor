@@ -13,6 +13,7 @@ import "normalize.css";
 import "./App.scss";
 import { arrows } from "./components/link/arrows";
 import { Slot } from "./components/slot/Slot";
+import { SlotHandler } from "./components/slot/SlotHandler";
 
 function generateNodes(count: number) {
   const nodes = [];
@@ -206,6 +207,27 @@ function App() {
           onChangeData={useCallback<
             NonNullable<SchemaEditorProps["onChangeData"]>
           >((data) => setData((d) => ({ ...d, ...data })), [])}
+          onAddLink={useCallback<NonNullable<SchemaEditorProps["onAddLink"]>>(
+            (data) =>
+              setData((d) => {
+                debugger;
+
+                return {
+                  ...d,
+                  links: [
+                    ...(d.links ?? []),
+                    {
+                      id: `${Math.random()}`,
+                      ...data,
+                      points: [],
+                    },
+                  ],
+                };
+
+                // ...d, ...data
+              }),
+            []
+          )}
         >
           {useMemo(
             () => (data, selected) => {
@@ -261,11 +283,16 @@ const SampleNode = memo(
         {data.type === "simple" && <div>simple={data.id}</div>}
         {data.type === "simple2" && <div>simple2={data.id}</div>}
         {/* <div>sample selected={selected + ""}</div> */}
-        {data.slots?.[0] && (
-          <Slot data={data.slots[0]}>
+        <div>
+          {data.slots?.[0] && (
+            <Slot data={data.slots[0]}>
+              <div className="slot"></div>
+            </Slot>
+          )}
+          <SlotHandler id={data.id}>
             <div className="slot"></div>
-          </Slot>
-        )}
+          </SlotHandler>
+        </div>
       </div>
     );
   }

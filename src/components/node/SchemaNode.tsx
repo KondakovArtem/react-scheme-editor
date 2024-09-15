@@ -12,7 +12,6 @@ import {
 import {
   EDraggingMode,
   EMouseButton,
-  Position,
   TRect,
   type SchemaEditorNode,
 } from "../../models";
@@ -36,6 +35,7 @@ import {
 } from "../../context/dragNodePosition.context";
 import { updateDataNodePositionAtom } from "../../context/data.context";
 import { isEmpty } from "../../utils/isEmpty";
+import { usePosition } from "../../hooks/usePosition";
 
 function nodeStyles(position: SchemaEditorNode["position"]): CSSProperties {
   const { x = 0, y = 0 } = position ?? {};
@@ -69,18 +69,15 @@ export const SchemaNode: FC<
 > = memo(({ data, children }) => {
   const updateRects = useSetAtom(updateRectsAtom);
   const onClickNode = useSetAtom(onClickElementAtom);
-  const { id, position } = data;
+  const { id } = data;
 
   const setDraggingMode = useSetAtom(dragginModeAtom);
   const setDragPosition = useSetAtom(dragPositionAtom);
   const updateDragNodePosition = useSetAtom(updateDragNodePositionAtom);
   const updateDataNodePosition = useSetAtom(updateDataNodePositionAtom);
 
-  const dragPosition = useSelectAtomValue(
-    dragPositionAtom,
-    (drag) => drag.node[id],
-    [id]
-  );
+  const position = usePosition(id) ?? data.position;
+
   const active = useSelectAtomValue(
     selectedNodeAtom,
     (s) => s?.includes(id) ?? false,
@@ -98,7 +95,7 @@ export const SchemaNode: FC<
     nodeDragEnd: ((e) => {
       setTimeout(() => setDraggingMode(EDraggingMode.none));
       updateDataNodePosition();
-      setDragPosition({ node: {}, linkPointer: {} });
+      setDragPosition({ linkPointer: {} });
     }) as IDragItem["dragEnd"],
   });
   Object.assign(stateRef.current, { data });
@@ -124,8 +121,9 @@ export const SchemaNode: FC<
   });
 
   const nodeStyle = useMemo(
-    () => nodeStyles(dragPosition ?? position),
-    [position, dragPosition]
+    () => nodeStyles(position),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [position.x, position.y]
   );
 
   const onClick = useCallback<MouseEventHandler>(
