@@ -101,7 +101,6 @@ export interface SchemaEditorNodeSlot<Data extends TRecord = TRecord> {
   direction?: {
     [key in SchemaEditorNodeSlotDirection]?: SchemaEditorNodeSlotVisualDirection[];
   };
-
   data?: Data;
 }
 

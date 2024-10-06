@@ -1,17 +1,17 @@
-import { FC, PropsWithChildren, useRef } from "react";
+import { useSetAtom } from 'jotai';
+import { FC, PropsWithChildren, useRef } from 'react';
 
-import "./Slot.scss";
-import { DragItem } from "../drag/DragItem";
-import { IDragItem } from "../drag/Dragger";
-
-import "./SlotHandler.scss";
-import { useSetAtom } from "jotai";
 import {
   draftLinkAtom,
   onAddDraftLinkAtom,
   setDraftLinkToAtom,
-} from "../../context/dragNodePosition.context";
-import { TangentDirections } from "../../models";
+} from '../../context/dragNodePosition.context';
+import { TangentDirections } from '../../models';
+import { DragItem } from '../drag/DragItem';
+import { IDragItem } from '../drag/Dragger';
+
+import './Slot.scss';
+import './SlotHandler.scss';
 
 export interface SlotHandlerProps {
   id: string;
@@ -40,22 +40,24 @@ export const SlotHandler: FC<PropsWithChildren<SlotHandlerProps>> = ({
           },
         },
       });
-    }) as IDragItem["dragStart"],
-    slotDragMove: ((e) => setDraftLinkTo(e)) as IDragItem["dragMove"],
-    slotDragEnd: ((e) => onAddDraftLink(e)) as IDragItem["dragEnd"],
+    }) as IDragItem['dragStart'],
+    slotDragMove: ((e) => setDraftLinkTo(e)) as IDragItem['dragMove'],
+    slotDragEnd: ((e) => onAddDraftLink(e)) as IDragItem['dragEnd'],
   });
 
   const { slotDragStart, slotDragMove, slotDragEnd } = stateRef.current;
 
   return (
-    <div ref={ref} className="schema-editor__slot-handler">
+    <>
       <DragItem
         itemRef={ref}
         dragStart={slotDragStart}
         dragMove={slotDragMove}
         dragEnd={slotDragEnd}
       ></DragItem>
-      {children}
-    </div>
+      <div ref={ref} className="schema-editor__slot-handler">
+        {children}
+      </div>
+    </>
   );
 };

@@ -1,0 +1,17 @@
+.inSlot {
+  width: 10px;
+  height: 10px;
+  background: green;
+}
+
+.outSlot {
+    width: 10px;
+    height: 10px;
+    background: blue;
+  }
+
+
+.slotContainer {
+  display: flex;
+  justify-content: space-between;
+}
