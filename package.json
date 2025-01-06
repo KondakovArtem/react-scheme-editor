@@ -1,12 +1,12 @@
 {
   "name": "react-scheme-editor",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "license": "MIT",
-  "homepage": "https://github.com/KondakovArtem/react-schema-editor",
+  "homepage": "https://github.com/KondakovArtem/react-scheme-editor",
   "repository": {
     "type": "git",
-    "url": "https://github.com/KondakovArtem/react-schema-editor"
+    "url": "https://github.com/KondakovArtem/react-scheme-editor"
   },
   "keywords": [
     "react",
@@ -16,7 +16,7 @@
   ],
   "author": "Kondakov Artem <kondakov.artem@gmail.com>",
   "bugs": {
-    "url": "https://github.com/KondakovArtem/react-schema-editor/issues"
+    "url": "https://github.com/KondakovArtem/react-scheme-editor/issues"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"

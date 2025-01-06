@@ -13541,9 +13541,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-schema-editor@workspace:.":
+"react-scheme-editor@workspace:.":
   version: 0.0.0-use.local
-  resolution: "react-schema-editor@workspace:."
+  resolution: "react-scheme-editor@workspace:."
   dependencies:
     "@storybook/addon-designs": "npm:^8.0.4"
     "@storybook/addon-essentials": "npm:^8.4.7"
