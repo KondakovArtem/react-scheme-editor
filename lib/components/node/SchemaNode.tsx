@@ -1,3 +1,6 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 import { useSetAtom } from 'jotai';
 import { isEqual } from 'lib/utils/isEqual';
 import {
@@ -9,20 +12,20 @@ import {
   memo,
   useCallback,
   useMemo,
-  useRef,
+  useRef
 } from 'react';
 
 import { updateDataNodePositionAtom } from '../../context/data.context';
 import {
   dragPositionAtom,
-  updateDragNodePositionAtom,
+  updateDragNodePositionAtom
 } from '../../context/dragNodePosition.context';
 import { dragginModeAtom } from '../../context/draggingMode.context';
 import { NodeRects, updateRectsAtom } from '../../context/rects.context';
 import {
   onClickElementAtom,
   onDownNodeAtom,
-  selectedNodeAtom,
+  selectedNodeAtom
 } from '../../context/selected.context';
 import { usePosition } from '../../hooks/usePosition';
 import { useResize } from '../../hooks/useResize';
@@ -30,7 +33,7 @@ import {
   EDraggingMode,
   EMouseButton,
   type SchemaEditorNode,
-  TRect,
+  TRect
 } from '../../models';
 import { useSelectAtomValue } from '../../utils/atom.selector';
 import { isEmpty } from '../../utils/isEmpty';
@@ -41,14 +44,15 @@ import './SchemaNode.scss';
 
 function nodeStyles(position: SchemaEditorNode['position']): CSSProperties {
   const { x = 0, y = 0 } = position ?? {};
+
   return {
-    transform: `translate(${Math.round(x)}px, ${Math.round(y)}px)`,
+    transform: `translate(${Math.round(x)}px, ${Math.round(y)}px)`
   };
 }
 
 const DRAG_NODE_OPTIONS: DragOptions = {
   button: [EMouseButton.left],
-  delay: 100,
+  delay: 100
 };
 
 export interface SchemaEditorNodeProps {
@@ -84,7 +88,7 @@ export const SchemaNode: FC<
     const active = useSelectAtomValue(
       selectedNodeAtom,
       (s) => s?.includes(id) ?? false,
-      [id],
+      [id]
     );
     const onDownNode = useSetAtom(onDownNodeAtom);
 
@@ -99,7 +103,7 @@ export const SchemaNode: FC<
         setTimeout(() => setDraggingMode(EDraggingMode.none));
         updateDataNodePosition();
         setDragPosition({ linkPointer: {} });
-      }) as IDragItem['dragEnd'],
+      }) as IDragItem['dragEnd']
     });
 
     Object.assign(stateRef.current, { data });
@@ -116,18 +120,18 @@ export const SchemaNode: FC<
           if (width !== undefined) newRect.width = width;
           if (height !== undefined) newRect.height = height;
           updateRects?.({
-            [id]: isEmpty(newRect) ? undefined : newRect,
+            [id]: isEmpty(newRect) ? undefined : newRect
           } as NodeRects);
         },
-        [id, updateRects],
+        [id, updateRects]
       ),
-      position,
+      position
     });
 
     const nodeStyle = useMemo(
       () => nodeStyles(position),
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [position.x, position.y],
+      [position.x, position.y]
     );
 
     const onClick = useCallback<MouseEventHandler>(
@@ -135,12 +139,12 @@ export const SchemaNode: FC<
         e.stopPropagation();
         onClickNode({ e, ids: [id] });
       },
-      [id, onClickNode],
+      [id, onClickNode]
     );
 
     const classes = useMemo(
       () => ['schema-editor__node', active ? 'active' : ''].join(' '),
-      [active],
+      [active]
     );
 
     const { nodeDragStart, nodeDragEnd, nodeDragMove } = stateRef.current;
@@ -150,13 +154,13 @@ export const SchemaNode: FC<
     return (
       <NodePositionContext.Provider value={context}>
         <DragItem
-          itemRef={ref}
-          dragStart={nodeDragStart}
-          dragMove={nodeDragMove}
           dragEnd={nodeDragEnd}
+          dragMove={nodeDragMove}
           dragOptions={DRAG_NODE_OPTIONS}
-        ></DragItem>
-        <div ref={ref} className={classes} onClick={onClick} style={nodeStyle}>
+          dragStart={nodeDragStart}
+          itemRef={ref}
+        />
+        <div className={classes} ref={ref} style={nodeStyle} onClick={onClick}>
           {children && children(data, active)}
         </div>
       </NodePositionContext.Provider>
@@ -166,8 +170,9 @@ export const SchemaNode: FC<
     if (pre.children !== cur.children || !isEqual(pre.data, cur.data)) {
       return false;
     }
+
     return true;
-  },
+  }
 );
 
 SchemaNode.displayName = 'SchemaNode';

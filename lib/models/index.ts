@@ -1,25 +1,27 @@
-import { FC } from "react";
-import { IDraggingEvent } from "../components/drag/Dragger";
+import { FC } from 'react';
+
+import { IDraggingEvent } from '../components/drag/Dragger';
 
 export enum TangentDirections {
-  AUTO = "auto",
-  CLOSEST_POINT = "closest-point",
-  DOWN = "down",
-  LEFT = "left",
-  OUTWARDS = "outwards",
-  RIGHT = "right",
-  UP = "up",
+  AUTO = 'auto',
+  CLOSEST_POINT = 'closest-point',
+  DOWN = 'down',
+  LEFT = 'left',
+  OUTWARDS = 'outwards',
+  RIGHT = 'right',
+  UP = 'up'
 }
 
 export const ARROW_WIDTH = 28;
 export const ARROW_HEIGHT = 14;
-export const ARROW_DEFAULT_LINE_COLOR = "var(--secondary-default)";
-export const ARROW_DEFAULT_LINE_COLOR_HOVER = "var(--primary-lightest)";
-export const ARROW_DEFAULT_LINE_COLOR_ACTIVE = "var(--primary-default)";
+export const ARROW_DEFAULT_LINE_COLOR = 'var(--secondary-default)';
+export const ARROW_DEFAULT_LINE_COLOR_HOVER = 'var(--primary-lightest)';
+export const ARROW_DEFAULT_LINE_COLOR_ACTIVE = 'var(--primary-default)';
 export const ZOOM_MIN_CONSTRAINTS: ValueConstraints = [0.05, 1];
 export const ZOOM_MAX_CONSTRAINTS: ValueConstraints = [1, 10];
 export const ZOOM_STEP_CONSTRAINTS: ValueConstraints = [0.01, 0.5];
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TRecord<T = any> = Record<string, T>;
 
 export type ValueConstraints = [number, number];
@@ -43,7 +45,7 @@ export type SlotRect = Position &
 export interface SchemaEditorConfig {
   canvasPosition?: Position;
   zoom?: number;
-  selected?: SchemaEditorNode["id"][];
+  selected?: SchemaEditorNode['id'][];
   showNavigator?: boolean;
 }
 
@@ -51,7 +53,7 @@ export interface SchemaEditorProps {
   config?: SchemaEditorConfig;
   data?: SchemaEditorData;
   onChangeConfig?: (config: Partial<SchemaEditorConfig>) => void;
-  onSelect?(ids: SchemaEditorNode["id"][]): void;
+  onSelect?(ids: SchemaEditorNode['id'][]): void;
   onChangeData?(data: SchemaEditorData): void;
   onAddLink?(data: { from: string; to: string }): void;
   children: FC<SchemaEditorNode>;
@@ -67,7 +69,7 @@ export interface SchemaEditorData<
   links?: SchemaEditorNodeLink<LinkData>[];
 }
 
-export type IAnchor = "start" | "middle" | "end";
+export type IAnchor = 'start' | 'middle' | 'end';
 
 export interface EntityAnchors {
   x: IAnchor;
@@ -92,7 +94,7 @@ export interface SchemaEditorNode<
   hidden?: boolean;
 }
 
-export type SchemaEditorNodeSlotDirection = "in" | "out" | "all";
+export type SchemaEditorNodeSlotDirection = 'in' | 'out' | 'all';
 
 export type SchemaEditorNodeSlotVisualDirection = TangentDirections;
 
@@ -104,7 +106,7 @@ export interface SchemaEditorNodeSlot<Data extends TRecord = TRecord> {
   data?: Data;
 }
 
-export type SchemaEditorNodeLinkLineType = "solid" | "dashed";
+export type SchemaEditorNodeLinkLineType = 'solid' | 'dashed';
 
 export type SchemaEditorLinkModel = {
   render(data: { from: SlotRect; to: SlotRect; points: Position[] }): {
@@ -122,8 +124,8 @@ export type SchemaEditorLinkModel = {
 };
 
 export enum ESchemaEditorLinkModels {
-  curve = "curve",
-  orthogonal = "orthogonal",
+  curve = 'curve',
+  orthogonal = 'orthogonal'
 }
 
 export interface SchemaEditorNodeLink<LinkData extends TRecord = TRecord> {
@@ -142,39 +144,39 @@ export interface SchemaEditorNodeLink<LinkData extends TRecord = TRecord> {
 }
 
 export enum SchemaEditorNodeLinkArrow {
-  arrowNone = "arrowNone",
-  arrowOne = "arrowOne",
-  arrowMany = "arrowMany",
-  arrowOneAndOnlyOne = "arrowOneAndOnlyOne",
-  arrowZeroOrOne = "arrowZeroOrOne",
-  arrowOneOrMany = "arrowOneOrMany",
-  arrowZeroOrMany = "arrowZeroOrMany",
-  arrowTerminate = "arrowTerminate",
-  arrowInnerClass = "arrowInnerClass",
-  arrowFoundMessage = "arrowFoundMessage",
-  arrowDefault = "arrowDefault",
-  arrowOutlinedTriangle = "arrowOutlinedTriangle",
-  arrowTriangle = "arrowTriangle",
-  arrowAggregation = "arrowAggregation",
-  arrowComposition = "arrowComposition",
-  arrowControlLifeline = "arrowControlLifeline",
-  arrowEntityLifeline = "arrowEntityLifeline",
-  arrowBoundaryLifeline = "arrowBoundaryLifeline",
+  arrowNone = 'arrowNone',
+  arrowOne = 'arrowOne',
+  arrowMany = 'arrowMany',
+  arrowOneAndOnlyOne = 'arrowOneAndOnlyOne',
+  arrowZeroOrOne = 'arrowZeroOrOne',
+  arrowOneOrMany = 'arrowOneOrMany',
+  arrowZeroOrMany = 'arrowZeroOrMany',
+  arrowTerminate = 'arrowTerminate',
+  arrowInnerClass = 'arrowInnerClass',
+  arrowFoundMessage = 'arrowFoundMessage',
+  arrowDefault = 'arrowDefault',
+  arrowOutlinedTriangle = 'arrowOutlinedTriangle',
+  arrowTriangle = 'arrowTriangle',
+  arrowAggregation = 'arrowAggregation',
+  arrowComposition = 'arrowComposition',
+  arrowControlLifeline = 'arrowControlLifeline',
+  arrowEntityLifeline = 'arrowEntityLifeline',
+  arrowBoundaryLifeline = 'arrowBoundaryLifeline'
 }
 
 export enum EDraggingMode {
   /** Dragging for main canvas */
-  canvas = "canvas",
+  canvas = 'canvas',
   /** Dragging for selection box */
-  selection = "selection",
+  selection = 'selection',
   /** Dragging for node item */
-  item = "item",
+  item = 'item',
   /** Dragging for map */
-  navigator = "navigator",
+  navigator = 'navigator',
   /** No Dragging */
-  none = "none",
+  none = 'none',
   /** Dragging for link point */
-  point = "point",
+  point = 'point'
 }
 
 export type MouseTouchEvent = (MouseEvent | TouchEvent) & {
@@ -184,7 +186,7 @@ export type MouseTouchEvent = (MouseEvent | TouchEvent) & {
 export enum EMouseButton {
   left = 0,
   middle = 1,
-  right = 2,
+  right = 2
 }
 
 export interface SchemaEditorNodeLinkDraft {

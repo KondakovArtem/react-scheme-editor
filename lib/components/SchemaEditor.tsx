@@ -1,31 +1,32 @@
-import { FC, memo, ReactNode, useEffect, useRef } from "react";
-import { useHydrateAtoms } from "jotai/utils";
-
-import { SchemaEditorProps } from "../models";
-
-import { SchemaEditorCanvas } from "./SchemaEditorCanvas";
-
+/* eslint-disable react/jsx-props-no-spreading */
 import {
   Provider,
+  WritableAtom,
   useAtom,
   useAtomValue,
-  useSetAtom,
-  WritableAtom,
-} from "jotai";
-import { configAtom } from "../context";
-import { methodsAtom } from "../context/methods.context";
-import { dataAtom } from "../context/data.context";
-import { draftLinkAtom } from "../context/dragNodePosition.context";
+  useSetAtom
+} from 'jotai';
+import { useHydrateAtoms } from 'jotai/utils';
+import { configAtom } from 'lib/context/config.context';
+import { FC, ReactNode, memo, useEffect, useRef } from 'react';
+
+import { dataAtom } from '../context/data.context';
+import { draftLinkAtom } from '../context/dragNodePosition.context';
+import { methodsAtom } from '../context/methods.context';
+import { SchemaEditorProps } from '../models';
+
+import { SchemaEditorCanvas } from './SchemaEditorCanvas';
 
 const AtomsHydrator = ({
   atomValues,
-  children,
+  children
 }: {
   atomValues: [WritableAtom<unknown, [any], unknown>, unknown][];
   children: ReactNode;
 }) => {
   useHydrateAtoms(new Map(atomValues));
-  return <>{children}</>;
+
+  return children;
 };
 
 export const SchemaEditor: FC<SchemaEditorProps> = ({ children, ...props }) => {
@@ -34,7 +35,7 @@ export const SchemaEditor: FC<SchemaEditorProps> = ({ children, ...props }) => {
       <AtomsHydrator
         atomValues={[
           [configAtom, props.config],
-          [dataAtom, props.data],
+          [dataAtom, props.data]
         ]}
       >
         <SchemaEditorComponent {...props}>{children}</SchemaEditorComponent>
@@ -62,7 +63,7 @@ export const SchemaEditorComponent: FC<SchemaEditorProps> = memo((props) => {
       onChangeConfig,
       onSelect,
       onChangeData,
-      onAddLink,
+      onAddLink
     });
   }, [onSelect, setMethods, onChangeData, onChangeConfig, onAddLink]);
 
@@ -72,8 +73,8 @@ export const SchemaEditorComponent: FC<SchemaEditorProps> = memo((props) => {
     <>
       <SchemaEditorCanvas data={data}>{children}</SchemaEditorCanvas>
       <div>
-        <pre style={{ fontSize: "8px", textAlign: "left" }}>
-          {JSON.stringify(draftLink, null, "\t")}
+        <pre style={{ fontSize: '8px', textAlign: 'left' }}>
+          {JSON.stringify(draftLink, null, '\t')}
         </pre>
       </div>
       {/* <div>
@@ -90,4 +91,4 @@ export const SchemaEditorComponent: FC<SchemaEditorProps> = memo((props) => {
   );
 });
 
-SchemaEditor.displayName = "SchemaEditor";
+SchemaEditor.displayName = 'SchemaEditor';

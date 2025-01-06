@@ -1,10 +1,10 @@
-import { FC, MutableRefObject, PropsWithChildren } from "react";
-import { canvasPositionAtom } from "../context/canvasPosition.context";
+import { useAtomValue } from 'jotai';
+import { FC, MutableRefObject, PropsWithChildren } from 'react';
 
-import { Position } from "../models";
-import { useZoom } from "../hooks/useZoom";
-import { useAtomValue } from "jotai";
-import { zoomAtom } from "../context/zoom.context";
+import { canvasPositionAtom } from '../context/canvasPosition.context';
+import { zoomAtom } from '../context/zoom.context';
+import { useZoom } from '../hooks/useZoom';
+import { Position } from '../models';
 
 export const CanvasMover: FC<
   PropsWithChildren<{
@@ -18,25 +18,23 @@ export const CanvasMover: FC<
 
   useZoom({ ref: dragRef, canvasRef });
 
-  positionRef && (positionRef.current = canvasPosition);
+  if (positionRef) positionRef.current = canvasPosition;
 
   requestAnimationFrame(() => {
     const { current: canvas } = canvasRef;
     const { current: drag } = dragRef;
     const { x, y } = canvasPosition;
-    canvas &&
-      (canvas.style.transform = `translate(${Math.round(x)}px, ${Math.round(
-        y
-      )}px) scale(${zoom})`);
+    if (canvas)
+      canvas.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px) scale(${zoom})`;
 
-    drag &&
+    if (drag)
       Object.assign(drag.style, {
         backgroundSize: `${zoom * 25}px ${zoom * 25}px`,
-        backgroundPosition: `${Math.round(x)}px ${Math.round(y)}px`,
+        backgroundPosition: `${Math.round(x)}px ${Math.round(y)}px`
       });
   });
 
-  return <>{children}</>;
+  return children;
 };
 
-CanvasMover.displayName = "CanvasMover";
+CanvasMover.displayName = 'CanvasMover';

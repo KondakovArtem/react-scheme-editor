@@ -1,17 +1,19 @@
-import { FC, MouseEventHandler, MutableRefObject, useMemo } from "react";
+import cn from 'classnames';
+import { FC, MouseEventHandler, MutableRefObject } from 'react';
+
 import {
   ARROW_HEIGHT,
   ARROW_WIDTH,
   ESchemaEditorLinkModels,
   Position,
   SchemaEditorNodeLinkArrow,
-  SlotRect,
-} from "../../models";
-import { arrows } from "./arrows";
-import { PointHandler } from "./PointHandler";
-import { useLinkPath } from "./useLinkPath";
+  SlotRect
+} from '../../models';
 
-import "./LinkPath.scss";
+import './LinkPath.scss';
+import { PointHandler } from './PointHandler';
+import { arrows } from './arrows';
+import { useLinkPath } from './useLinkPath';
 
 export interface LinkProps {
   id: string;
@@ -41,94 +43,90 @@ const ARROW_VIEW_BOX = `0 0 ${ARROW_WIDTH} ${ARROW_HEIGHT}`;
 const refX = 1;
 const refY = ARROW_HEIGHT / 2;
 
-export const LinkPath: FC<LinkProps> = (props) => {
-  const {
-    id,
-    active,
-    hover,
-    handle = true,
-    pathHandleRef,
-    pathRef,
-    mouseOver,
-    mouseOut,
-    onClick,
-    onDoubleClick,
-    onContextMenu,
-    lineType,
-    fromArrow,
-    toArrow,
-    showPoints = true,
+export const LinkPath: FC<LinkProps> = ({
+  id,
+  active,
+  hover,
+  handle = true,
+  pathHandleRef,
+  pathRef,
+  mouseOver,
+  mouseOut,
+  onClick,
+  onDoubleClick,
+  onContextMenu,
+  lineType,
+  fromArrow,
+  toArrow,
+  showPoints = true,
+  fromSlot,
+  toSlot,
+  model = ESchemaEditorLinkModels.curve,
+  points: pPoints
+}) => {
+  const markerStartId = `${id ?? 'unknown'}_start`;
+  const markerEndId = `${id ?? 'unknown'}_end`;
+
+  const { points, path, drag } = useLinkPath(
     fromSlot,
     toSlot,
-    model = ESchemaEditorLinkModels.curve,
-  } = props;
-  const markerStartId = `${id ?? "unknown"}_start`;
-  const markerEndId = `${id ?? "unknown"}_end`;
-
-  const classes = useMemo(
-    () =>
-      [
-        "schema-editor__link",
-        (active && "schema-editor__link--active") || "",
-        (hover && "schema-editor__link--hover") || "",
-      ].join(" "),
-    [hover, active]
-  );
-
-  const { points, path } = useLinkPath(
-    fromSlot,
-    toSlot,
-    props.points,
     id,
-    model
+    model,
+    pPoints
   );
 
   return (
-    <div className={classes}>
-      <svg style={{ display: path ? "inherit" : "none" }}>
+    <div
+      className={cn('schema-editor__link', {
+        'schema-editor__link--active': active,
+        'schema-editor__link--hover': hover,
+        'schema-editor__link--drag': drag
+      })}
+    >
+      <svg style={{ display: path ? 'inherit' : 'none' }}>
         {handle && (
           <path
-            ref={pathHandleRef}
             className="schema-editor__link-handle"
-            onMouseOver={mouseOver}
-            onMouseOut={mouseOut}
-            onClick={onClick}
-            onDoubleClick={onDoubleClick}
-            onContextMenu={onContextMenu}
             d={path}
+            ref={pathHandleRef}
+            onClick={onClick}
+            onContextMenu={onContextMenu}
+            onDoubleClick={onDoubleClick}
+            onMouseOut={mouseOut}
+            onMouseOver={mouseOver}
           ></path>
         )}
         <path
-          ref={pathRef}
-          className={["schema-editor__link-path", lineType ?? ""].join(" ")}
-          markerStart={`url(#${markerStartId})`}
-          markerEnd={`url(#${markerEndId})`}
+          className={cn('schema-editor__link-path', lineType)}
           d={path}
+          markerEnd={`url(#${markerEndId})`}
+          markerStart={`url(#${markerStartId})`}
+          ref={pathRef}
         ></path>
         <defs>
           <marker
+            className="arrow-marker"
             id={markerStartId}
-            markerWidth={arrowWidth}
             markerHeight={arrowHeight}
             markerUnits="userSpaceOnUse"
+            markerWidth={arrowWidth}
+            orient="auto-start-reverse"
             refX={refX}
             refY={refY}
-            orient="auto-start-reverse"
             viewBox={ARROW_VIEW_BOX}
-            className="arrow-marker"
           >
             {arrows[fromArrow ?? SchemaEditorNodeLinkArrow.arrowNone]?.()}
           </marker>
           <marker
+            className="arrow-marker"
             id={markerEndId}
-            markerWidth={arrowWidth}
             markerHeight={arrowHeight}
             markerUnits="userSpaceOnUse"
+            markerWidth={arrowWidth}
+            orient="auto-start-reverse"
             refX={refX}
             refY={refY}
-            orient="auto-start-reverse"
             viewBox={ARROW_VIEW_BOX}
-            className="arrow-marker"
           >
             {arrows[toArrow ?? SchemaEditorNodeLinkArrow.arrowDefault]?.()}
           </marker>
@@ -139,19 +137,20 @@ export const LinkPath: FC<LinkProps> = (props) => {
         toSlot &&
         points?.map((_, i) => (
           <PointHandler
-            onMouseOver={mouseOver}
-            onMouseOut={mouseOut}
-            key={i}
-            points={points}
-            pointIndex={i}
-            linkModel={model}
-            linkId={id}
             from={fromSlot}
+            // eslint-disable-next-line react/no-array-index-key
+            key={i}
+            linkId={id}
+            linkModel={model}
+            pointIndex={i}
+            points={points}
             to={toSlot}
-          ></PointHandler>
+            onMouseOut={mouseOut}
+            onMouseOver={mouseOver}
+          />
         ))}
     </div>
   );
 };
 
-LinkPath.displayName = "LinkPath";
+LinkPath.displayName = 'LinkPath';

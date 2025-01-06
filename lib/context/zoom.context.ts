@@ -1,5 +1,6 @@
-import { atom } from "jotai";
-import { configAtom } from ".";
+import { atom } from 'jotai';
+
+import { configAtom } from './config.context';
 
 export const zoomAtom = atom(
   (get) => get(configAtom)?.zoom ?? 1,

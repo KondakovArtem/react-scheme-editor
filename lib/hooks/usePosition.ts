@@ -1,15 +1,16 @@
-import { useAtomValue, atom } from "jotai";
-import { useMemo } from "react";
+import { atom, useAtomValue } from 'jotai';
+import { useMemo } from 'react';
+
+import { dataAtom } from '../context/data.context';
 // import { dragPositionAtom } from "../context/dragNodePosition.context";
-import { nodeRectsAtom } from "../context/rects.context";
+import { nodeRectsAtom } from '../context/rects.context';
 import {
   SchemaEditorData,
   SchemaEditorNodeSlotDirection,
   SlotRect,
-  TangentDirections,
-} from "../models";
-import { dataAtom } from "../context/data.context";
-import { useSelectAtomValue } from "../utils/atom.selector";
+  TangentDirections
+} from '../models';
+import { useSelectAtomValue } from '../utils/atom.selector';
 
 export function usePosition(id: string) {
   return useSelectAtomValue(nodeRectsAtom, (rects) => rects?.[id], [id]);
@@ -21,7 +22,8 @@ function findSlotById(data: SchemaEditorData | undefined, targetId: string) {
     return null; // Возвращаем null, если nodes нет
   }
   // Рекурсивная функция для поиска по nodes
-  for (const node of data.nodes) {
+  for (let i = 0; i < data.nodes.length; i += 1) {
+    const node = data.nodes[i];
     if (node.id === targetId) {
       return node; // Возвращаем узел, если найдено совпадение
     }
@@ -31,6 +33,7 @@ function findSlotById(data: SchemaEditorData | undefined, targetId: string) {
       return foundInSlots; // Возвращаем слот, если найдено совпадение
     }
   }
+
   return null; // Возвращаем null, если ничего не найдено
 }
 
@@ -51,7 +54,7 @@ export function useSlotPosition(
             slot?.direction?.all ??
             DEF_DIRECTIONS;
           const nodeRect = get(nodeRectsAtom)?.[id];
-          let result = nodeRect;
+          const result = nodeRect;
           if (
             result?.height === undefined ||
             result?.width === undefined ||
@@ -60,6 +63,7 @@ export function useSlotPosition(
           ) {
             return undefined;
           }
+
           return { ...result, directions } as SlotRect;
         }),
       [id, direction]

@@ -1,47 +1,40 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+import cn from 'classnames';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { showNavigatorAtom } from 'lib/context/config.context';
+import { FC, MouseEventHandler, memo, useCallback, useRef } from 'react';
+
+import { canvasPositionAtom } from '../context/canvasPosition.context';
+import { canvasSizeAtom } from '../context/canvasSize.context';
+import { dragginModeAtom } from '../context/draggingMode.context';
+import { methodsAtom } from '../context/methods.context';
 import {
-  FC,
-  memo,
-  MouseEventHandler,
-  useCallback,
-  useMemo,
-  useRef,
-} from "react";
-
-import "./SchemaEditor.scss";
-
+  selectBySelectBoxAtom,
+  selectboxRectAtom
+} from '../context/selectboxRect.context';
+import { selectedNodeAtom } from '../context/selected.context';
+import { useResize } from '../hooks/useResize';
 import {
   EDraggingMode,
   EMouseButton,
   Position,
   SchemaEditorConfig,
   SchemaEditorData,
-  SchemaEditorNode,
-} from "../models";
-import { SchemaNode } from "./node/SchemaNode";
-import { SelectBox } from "./selectbox/SelectBox";
-import { Navigator } from "./navigator/Navigator";
-import { Dragger } from "./drag/Dragger";
-import { DragItem, DragItemProps, DragOptions } from "./drag/DragItem";
-import { methodsAtom } from "../context/methods.context";
+  SchemaEditorNode
+} from '../models';
+import { isEqual } from '../utils/isEqual';
 
-import { CanvasMover } from "./CanvasMover";
-import { useResize } from "../hooks/useResize";
-
-// import { useSelectedContext } from "../context/selected.context";
-import { isEqual } from "../utils/isEqual";
-import { showNavigatorAtom } from "../context";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { canvasPositionAtom } from "../context/canvasPosition.context";
-import { canvasSizeAtom } from "../context/canvasSize.context";
-import { dragginModeAtom } from "../context/draggingMode.context";
-import { selectedNodeAtom } from "../context/selected.context";
-import {
-  selectboxRectAtom,
-  selectBySelectBoxAtom,
-} from "../context/selectboxRect.context";
-import { SchemaLink } from "./link/SchemaLink";
-import { SchemaLinkDraft } from "./link/SchemaLinkDraft";
-// import { SchemaLinkDraft } from "./link/SchemaLinkDraft";
+import { CanvasMover } from './CanvasMover';
+import './SchemaEditor.scss';
+import { DragItem, DragItemProps, DragOptions } from './drag/DragItem';
+import { Dragger } from './drag/Dragger';
+import { SchemaLink } from './link/SchemaLink';
+import { SchemaLinkDraft } from './link/SchemaLinkDraft';
+import { Navigator } from './navigator/Navigator';
+import { SchemaNode } from './node/SchemaNode';
+import { SelectBox } from './selectbox/SelectBox';
 
 interface SchemaEditorCanvasProps {
   data?: SchemaEditorData;
@@ -50,7 +43,7 @@ interface SchemaEditorCanvasProps {
 
 const DRAG_CANVAS_OPTIONS: DragOptions = {
   button: [EMouseButton.left, EMouseButton.middle],
-  delay: 100,
+  delay: 100
 };
 
 export const SchemaEditorCanvas: FC<SchemaEditorCanvasProps> = memo((props) => {
@@ -75,9 +68,9 @@ export const SchemaEditorCanvas: FC<SchemaEditorCanvasProps> = memo((props) => {
 
   const stateRef = useRef<{
     originCanvasPos?: Position;
-    onStartDragCanvas: DragItemProps["dragStart"];
-    onDraggingCanvas: DragItemProps["dragMove"];
-    onEndDragCanvas: DragItemProps["dragEnd"];
+    onStartDragCanvas: DragItemProps['dragStart'];
+    onDraggingCanvas: DragItemProps['dragMove'];
+    onEndDragCanvas: DragItemProps['dragEnd'];
     onChangeConfig?: (data: Partial<SchemaEditorConfig>) => void;
     draggingMode: EDraggingMode;
     // canvasPosition: Position;
@@ -99,7 +92,7 @@ export const SchemaEditorCanvas: FC<SchemaEditorCanvasProps> = memo((props) => {
         if (originCanvasPos) {
           const canvasPosition = {
             x: originCanvasPos.x + (e.dPos?.canvas?.x ?? 0),
-            y: originCanvasPos.y + (e.dPos?.canvas?.y ?? 0),
+            y: originCanvasPos.y + (e.dPos?.canvas?.y ?? 0)
           };
           setCanvasPosition(canvasPosition);
         }
@@ -110,7 +103,7 @@ export const SchemaEditorCanvas: FC<SchemaEditorCanvasProps> = memo((props) => {
             x: origin.canvas.x + (dPos.canvas.x < 0 ? dPos.canvas.x : 0),
             y: origin.canvas.y + (dPos.canvas.y < 0 ? dPos.canvas.y : 0),
             width: Math.abs(dPos.canvas.x),
-            height: Math.abs(dPos.canvas.y),
+            height: Math.abs(dPos.canvas.y)
           });
         }
       }
@@ -126,8 +119,8 @@ export const SchemaEditorCanvas: FC<SchemaEditorCanvasProps> = memo((props) => {
           stateRef.current.onChangeConfig?.({
             canvasPosition: {
               x: originCanvasPos.x + (e.dPos?.canvas?.x ?? 0),
-              y: originCanvasPos.y + (e.dPos?.canvas?.y ?? 0),
-            },
+              y: originCanvasPos.y + (e.dPos?.canvas?.y ?? 0)
+            }
           });
         }
       } else if (draggingMode === EDraggingMode.selection) {
@@ -135,7 +128,7 @@ export const SchemaEditorCanvas: FC<SchemaEditorCanvasProps> = memo((props) => {
         setSelectboxRect(undefined);
       }
     },
-    onChangeConfig,
+    onChangeConfig
   });
   Object.assign(stateRef.current, { onChangeConfig, draggingMode });
 
@@ -158,53 +151,51 @@ export const SchemaEditorCanvas: FC<SchemaEditorCanvasProps> = memo((props) => {
     [onSelect, draggingMode, selected, setSelected]
   );
 
-  const canvasClasses = useMemo(
-    () =>
-      [
-        "schema-editor__canvas",
-        ([
-          EDraggingMode.canvas,
-          EDraggingMode.item,
-          EDraggingMode.point,
-        ].includes(draggingMode) &&
-          "schema-editor__canvas--dragging") ||
-          "",
-      ].join(" "),
-    [draggingMode]
-  );
+  const links = data?.links ?? [];
+  const nodes = data?.nodes ?? [];
 
   return (
     <>
-      <Dragger dragRef={ref}></Dragger>
+      <Dragger dragRef={ref} />
       <DragItem
-        dragOptions={DRAG_CANVAS_OPTIONS}
-        itemRef={ref}
-        dragStart={onStartDragCanvas}
-        dragMove={onDraggingCanvas}
         dragEnd={onEndDragCanvas}
-      ></DragItem>
+        dragMove={onDraggingCanvas}
+        dragOptions={DRAG_CANVAS_OPTIONS}
+        dragStart={onStartDragCanvas}
+        itemRef={ref}
+      />
       <CanvasMover
         canvasRef={canvasRef}
         dragRef={ref}
         positionRef={positionRef}
-      ></CanvasMover>
-      <div ref={ref} className={canvasClasses} onClick={clearSelected}>
-        <div ref={canvasRef} className="schema-editor__drag">
-          {(data?.nodes ?? []).map((node) => (
-            <SchemaNode key={node.id} data={node}>
+      />
+      <div
+        ref={ref}
+        className={cn('schema-editor__canvas', {
+          'schema-editor__canvas--dragging': [
+            EDraggingMode.canvas,
+            EDraggingMode.item,
+            EDraggingMode.point
+          ].includes(draggingMode)
+        })}
+        onClick={clearSelected}
+      >
+        <div className="schema-editor__drag" ref={canvasRef}>
+          {nodes.map((node) => (
+            <SchemaNode data={node} key={node.id}>
               {children}
             </SchemaNode>
           ))}
-          {(data?.links ?? []).map((link) => (
-            <SchemaLink key={link.id} data={link} />
+          {links.map((link) => (
+            <SchemaLink data={link} key={link.id} />
           ))}
           <SchemaLinkDraft />
         </div>
-        {draggingMode === EDraggingMode.selection && <SelectBox></SelectBox>}
-        {showNavigator !== false && <Navigator data={data}></Navigator>}
+        {draggingMode === EDraggingMode.selection && <SelectBox />}
+        {showNavigator !== false && <Navigator data={data} />}
       </div>
     </>
   );
 });
 
-SchemaEditorCanvas.displayName = "SchemaEditorCanvas";
+SchemaEditorCanvas.displayName = 'SchemaEditorCanvas';

@@ -1,4 +1,4 @@
-import { Position } from "../models";
+import { Position } from '../models';
 
 function squaredLength(start: Point, end: Point): number {
   let x0 = start.x;
@@ -6,6 +6,7 @@ function squaredLength(start: Point, end: Point): number {
   const x1 = end.x;
   const y1 = end.y;
   const res = (x0 -= x1) * x0 + (y0 -= y1) * y0;
+
   return res;
 }
 
@@ -15,6 +16,7 @@ export function length(start: Point, end: Point): number {
 
 export class Point implements Position {
   public x: number;
+
   public y: number;
 
   constructor(x?: number | string | Position, y?: number | string | Position) {
@@ -22,8 +24,8 @@ export class Point implements Position {
     //     return new Point(x, y);
     // }
 
-    if (typeof x === "string") {
-      const xy = x.split(x.indexOf("@") === -1 ? " " : "@");
+    if (typeof x === 'string') {
+      const xy = x.split(x.indexOf('@') === -1 ? ' ' : '@');
       x = parseFloat(xy[0]);
       y = parseFloat(xy[1]);
     } else if (Object(x) === x) {
@@ -47,7 +49,7 @@ export class Point implements Position {
   relative({ x, y }: Position) {
     return new Point({
       x: this.x - x,
-      y: this.y - y,
+      y: this.y - y
     });
   }
 
@@ -58,6 +60,7 @@ export class Point implements Position {
   private toRad(deg: number, over360?: boolean): number {
     over360 = over360 || false;
     deg = over360 ? deg : deg % 360;
+
     return (deg * Math.PI) / 180;
   }
 
@@ -75,6 +78,7 @@ export class Point implements Position {
 
   public toJson(): Position {
     const { x, y } = this;
+
     return { x, y };
   }
 
@@ -100,6 +104,7 @@ export class Point implements Position {
 
     this.x = x;
     this.y = y;
+
     return this;
   }
 
@@ -111,6 +116,7 @@ export class Point implements Position {
 
     this.x += (dx as number) || 0;
     this.y += (dy as number) || 0;
+
     return this;
   }
 
@@ -147,9 +153,10 @@ export class Point implements Position {
       xx = x1 + param * C;
       yy = y1 + param * D;
     }
+
     return {
       d: Math.sqrt((x - xx) ** 2 + (y - yy) ** 2),
-      p: new Point(xx, yy),
+      p: new Point(xx, yy)
     };
   }
 
@@ -157,11 +164,13 @@ export class Point implements Position {
     origin = (origin && new Point(origin)) || new Point(0, 0);
     this.x = origin.x + sx * (this.x - origin.x);
     this.y = origin.y + sy * (this.y - origin.y);
+
     return this;
   }
 
   public normalize(len?: number): Point {
     const scale = (len || 1) / this.magnitude();
+
     return this.scale(scale, scale);
   }
 

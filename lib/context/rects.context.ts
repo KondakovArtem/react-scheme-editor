@@ -1,5 +1,6 @@
-import { atom } from "jotai";
-import { TRect, TRecord } from "../models";
+import { atom } from 'jotai';
+
+import { TRecord, TRect } from '../models';
 
 export type NodeRects = TRecord<TRect | undefined>;
 export const nodeRectsAtom = atom<NodeRects>({});
@@ -17,6 +18,7 @@ export const updateRectsAtom = atom(
         } else {
           pre[id] = { ...pre[id], ...newRects[id] } as DOMRect;
         }
+
         return pre;
       },
       { ...rects }

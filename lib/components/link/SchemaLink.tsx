@@ -1,19 +1,19 @@
-import { FC, memo, useCallback, useRef, useState, MouseEvent } from "react";
-import { useSetAtom } from "jotai";
-
-import {
-  ESchemaEditorLinkModels,
-  type SchemaEditorNodeLink,
-} from "../../models";
+import { useSetAtom } from 'jotai';
+import { FC, MouseEvent, memo, useCallback, useRef, useState } from 'react';
 
 import {
   onClickElementAtom,
-  selectedNodeAtom,
-} from "../../context/selected.context";
-import { useSelectAtomValue } from "../../utils/atom.selector";
-import { useMouseDown } from "../../hooks/useMouseDown";
-import { useSlotPosition } from "../../hooks/usePosition";
-import { LinkPath } from "./LinkPath";
+  selectedNodeAtom
+} from '../../context/selected.context';
+import { useMouseDown } from '../../hooks/useMouseDown';
+import { useSlotPosition } from '../../hooks/usePosition';
+import {
+  ESchemaEditorLinkModels,
+  type SchemaEditorNodeLink
+} from '../../models';
+import { useSelectAtomValue } from '../../utils/atom.selector';
+
+import { LinkPath } from './LinkPath';
 
 export interface SchemaEditorLinkProps {
   data: SchemaEditorNodeLink;
@@ -26,10 +26,11 @@ export const SchemaLink: FC<SchemaEditorLinkProps> = memo(({ data }) => {
   const pathRef = useRef<SVGPathElement | null>(null);
   const { from, to, id, model = ESchemaEditorLinkModels.curve } = data;
 
-  const fromSlot = useSlotPosition(from, "out");
-  const toSlot = useSlotPosition(to, "in");
+  const fromSlot = useSlotPosition(from, 'out');
+  const toSlot = useSlotPosition(to, 'in');
 
   const [hover, setHover] = useState(false);
+
   const active = useSelectAtomValue(
     selectedNodeAtom,
     (selected) => selected?.includes(id),
@@ -40,53 +41,51 @@ export const SchemaLink: FC<SchemaEditorLinkProps> = memo(({ data }) => {
 
   const onLinkClick = useCallback(
     (e: MouseEvent) => {
-      console.log("onLinkClick", id);
+      // console.log('onLinkClick', id);
       onClickElement({ e, ids: [id] });
       e.stopPropagation();
     },
     [id, onClickElement]
   );
 
-  function onLinkDblClick() {
-    console.log("onLinkDblClick");
-  }
-  function onLinkContextMenu() {
-    console.log("onLinkContextMenu");
-  }
+  const onLinkDblClick = () => {
+    console.log('onLinkDblClick');
+  };
+  const onLinkContextMenu = () => {
+    console.log('onLinkContextMenu');
+  };
 
   const mouseOver = useCallback(() => setHover(true), []);
   const mouseOut = useCallback(() => setHover(false), []);
 
   useMouseDown<SVGPathElement>({
     ref: pathHandleRef,
-    onMouseDown: useCallback((e: MouseEvent) => e.stopPropagation(), []),
+    onMouseDown: useCallback((e: MouseEvent) => e.stopPropagation(), [])
   });
 
+  if (!fromSlot || !toSlot) return undefined;
+
   return (
-    <>
-      {fromSlot && toSlot && (
-        <LinkPath
-          id={id}
-          fromSlot={fromSlot}
-          toSlot={toSlot}
-          hover={hover}
-          active={active}
-          model={model}
-          fromArrow={data.fromArrow}
-          toArrow={data.toArrow}
-          points={data.points}
-          mouseOver={mouseOver}
-          mouseOut={mouseOut}
-          pathRef={pathRef}
-          pathHandleRef={pathHandleRef}
-          lineType={data.lineType}
-          onContextMenu={onLinkContextMenu}
-          onClick={onLinkClick}
-          onDoubleClick={onLinkDblClick}
-        />
-      )}
-    </>
+    <LinkPath
+      active={active}
+      fromArrow={data.fromArrow}
+      fromSlot={fromSlot}
+      hover={hover}
+      id={id}
+      lineType={data.lineType}
+      model={model}
+      mouseOut={mouseOut}
+      mouseOver={mouseOver}
+      pathHandleRef={pathHandleRef}
+      pathRef={pathRef}
+      points={data.points}
+      toArrow={data.toArrow}
+      toSlot={toSlot}
+      onClick={onLinkClick}
+      onContextMenu={onLinkContextMenu}
+      onDoubleClick={onLinkDblClick}
+    />
   );
 });
 
-SchemaLink.displayName = "SchemaLink";
+SchemaLink.displayName = 'SchemaLink';

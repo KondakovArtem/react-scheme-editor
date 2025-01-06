@@ -1,14 +1,16 @@
-import type { MouseEvent } from "react";
-import { EDraggingMode, MouseTouchEvent, SchemaEditorNode } from "../models";
-import { atom } from "jotai";
-import { configAtom } from ".";
-import { isEqual } from "../utils/isEqual";
-import { methodsAtom } from "./methods.context";
-import { dragginModeAtom } from "./draggingMode.context";
+import { atom } from 'jotai';
+import type { MouseEvent } from 'react';
+
+import { EDraggingMode, MouseTouchEvent, SchemaEditorNode } from '../models';
+import { isEqual } from '../utils/isEqual';
+
+import { configAtom } from './config.context';
+import { dragginModeAtom } from './draggingMode.context';
+import { methodsAtom } from './methods.context';
 
 interface SelectNodeDispatcherData {
   e: MouseEvent;
-  ids: SchemaEditorNode["id"][];
+  ids: SchemaEditorNode['id'][];
 }
 export type SelectNodeDispatcher = (data: SelectNodeDispatcherData) => void;
 

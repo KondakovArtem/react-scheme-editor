@@ -1,19 +1,17 @@
-import { useEffect, MutableRefObject, useRef } from "react";
+import { useAtomValue } from 'jotai';
+import { MutableRefObject, useEffect, useRef } from 'react';
 
-import { Position } from "../models";
-import { methodsAtom } from "../context/methods.context";
-
-import { useAtomValue } from "jotai";
-
-import { canvasPositionAtom } from "../context/canvasPosition.context";
-import { zoomAtom } from "../context/zoom.context";
+import { canvasPositionAtom } from '../context/canvasPosition.context';
+import { methodsAtom } from '../context/methods.context';
+import { zoomAtom } from '../context/zoom.context';
+import { Position } from '../models';
 
 export const settings = {
   zoomMin: 0.2,
   zoomMax: 2,
   zoomStep: 0.2,
   canvasDragMode: false,
-  showMap: true,
+  showMap: true
 };
 
 interface UseZoomOptions<T> {
@@ -23,7 +21,7 @@ interface UseZoomOptions<T> {
 
 export function useZoom<T extends HTMLElement>({
   canvasRef,
-  ref,
+  ref
 }: UseZoomOptions<T>) {
   const { onChangeConfig } = useAtomValue(methodsAtom) ?? {};
 
@@ -44,21 +42,21 @@ export function useZoom<T extends HTMLElement>({
     const container = ref?.current;
     if (canvas && container) {
       const clearTransition = () => {
-        canvas.style.transition = "";
-        container.style.transition = "";
+        canvas.style.transition = '';
+        container.style.transition = '';
       };
       Object.assign(container.style, {
-        transition: ".2s",
-        transitionProperty: "background-size, background-position",
+        transition: '.2s',
+        transitionProperty: 'background-size, background-position'
       });
       Object.assign(canvas.style, {
-        transition: ".2s",
-        transitionProperty: "transform",
+        transition: '.2s',
+        transitionProperty: 'transform'
       });
 
-      canvas.addEventListener("transitionend", () => {
+      canvas.addEventListener('transitionend', () => {
         clearTransition();
-        canvas.removeEventListener("transitionend", clearTransition);
+        canvas.removeEventListener('transitionend', clearTransition);
       });
     }
   }
@@ -90,7 +88,7 @@ export function useZoom<T extends HTMLElement>({
       if (!pos) {
         pos = {
           x: box.width / 2,
-          y: box.height / 2,
+          y: box.height / 2
         };
       }
       const zoomK = newZoom / options.zoom;
@@ -98,8 +96,8 @@ export function useZoom<T extends HTMLElement>({
         zoom: newZoom,
         canvasPosition: {
           x: Math.round(((options.position?.x ?? 0) - pos.x) * zoomK + pos.x),
-          y: Math.round(((options.position?.y ?? 0) - pos.y) * zoomK + pos.y),
-        },
+          y: Math.round(((options.position?.y ?? 0) - pos.y) * zoomK + pos.y)
+        }
       });
     },
     zoomByWheelEvent: (event: WheelEvent) => {
@@ -109,29 +107,28 @@ export function useZoom<T extends HTMLElement>({
         if (canvasBox) {
           const pos = {
             x: event.clientX - canvasBox.x,
-            y: event.clientY - canvasBox.y,
+            y: event.clientY - canvasBox.y
           };
-          event.deltaY > 0
-            ? methodsRef.current.zoomOut(pos)
-            : methodsRef.current.zoomIn(pos);
+          methodsRef.current[event.deltaY > 0 ? 'zoomOut' : 'zoomIn'](pos);
         }
       }
     },
-    onChangeConfig,
+    onChangeConfig
   });
   Object.assign(methodsRef.current, { onChangeConfig });
 
   useEffect(() => {
     const { current: element } = ref ?? {};
-    if (!element) return;
-    element.addEventListener("wheel", methodsRef.current.zoomByWheelEvent);
+    if (!element) return undefined;
+    element.addEventListener('wheel', methodsRef.current.zoomByWheelEvent);
+
     return () =>
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      element.removeEventListener("wheel", methodsRef.current.zoomByWheelEvent);
+      element.removeEventListener('wheel', methodsRef.current.zoomByWheelEvent);
   }, [ref]);
 
   return {
     ref,
-    ...optionsRef.current,
+    ...optionsRef.current
   };
 }

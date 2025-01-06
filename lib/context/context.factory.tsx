@@ -1,12 +1,12 @@
 import {
-  createContext,
   MutableRefObject,
   PropsWithChildren,
+  createContext,
   useContext,
   useEffect,
   useMemo,
-  useState,
-} from "react";
+  useState
+} from 'react';
 
 /** Фабрика для генерации контекстов состояния и диспетчера
  *
@@ -42,7 +42,7 @@ export function createStateContextFactory<
   const DispatchContext = createContext<Setter | undefined>(undefined);
   DispatchContext.displayName = `${name}DispatchContext`;
 
-  let stateRef: { current?: Partial<State> } = {};
+  const stateRef: { current?: Partial<State> } = {};
   // Компонент-провайдер, который предоставляет состояние и функцию изменения состояния
   const Provider = (
     props: PropsWithChildren<{
@@ -51,10 +51,11 @@ export function createStateContextFactory<
     }>
   ) => {
     // Локальное состояние, инициализируемое из пропсов
-    const [state, setState] = useState<Partial<State> | undefined>(props.state);
+    const { state: pState, setState: setPState } = props;
+    const [state, setState] = useState<Partial<State> | undefined>(pState);
 
     // Обновляем локальное состояние, если изменяются пропсы
-    useEffect(() => setState(props.state), [props.state]);
+    useEffect(() => setState(pState), [pState]);
     stateRef.current = state;
     // Мемоизированная функция для установки состояния с использованием переданного setter
     const setterState = useMemo(
@@ -66,13 +67,12 @@ export function createStateContextFactory<
     );
 
     const { children } = props;
+
     return (
       // Предоставляем состояние через StateContext
       <StateContext.Provider value={state as State}>
         {/* Предоставляем функцию изменения состояния через DispatchContext */}
-        <DispatchContext.Provider
-          value={props.setState ?? (setterState as Setter)}
-        >
+        <DispatchContext.Provider value={setPState ?? (setterState as Setter)}>
           {children}
         </DispatchContext.Provider>
       </StateContext.Provider>
@@ -89,6 +89,7 @@ export function createStateContextFactory<
           `useStateContext must be used within a ${StateContext.displayName}`
         );
       }
+
       return context;
     },
     useGetStateRef: () => stateRef as MutableRefObject<State>,
@@ -99,10 +100,11 @@ export function createStateContextFactory<
           `use${name}DispatchContext must be used within a ${DispatchContext.displayName}`
         );
       }
+
       return context;
     },
     useContext: () =>
-      [res.useStateContext(), res.useDispatchContext()] as [State, Setter],
+      [res.useStateContext(), res.useDispatchContext()] as [State, Setter]
   };
 
   return res;

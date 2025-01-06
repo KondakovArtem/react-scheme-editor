@@ -1,10 +1,14 @@
-import { Point as SVGPoint } from "svg-points";
-import { Point } from "./point";
+import { Point as SVGPoint } from 'svg-points';
+
+import { Point } from './point';
 
 export class Curve {
   public start!: Point;
+
   public controlPoint1!: Point;
+
   public controlPoint2!: Point;
+
   public end!: Point;
 
   constructor(p1: Point | Curve, p2: Point, p3: Point, p4: Point) {
@@ -29,13 +33,14 @@ export class Curve {
     res.push({
       ...this.end.toJson(),
       curve: {
-        type: "cubic",
+        type: 'cubic',
         x1: this.controlPoint1.x,
         y1: this.controlPoint1.y,
         x2: this.controlPoint2.x,
-        y2: this.controlPoint2.y,
-      },
+        y2: this.controlPoint2.y
+      }
     });
+
     return res;
   }
 }

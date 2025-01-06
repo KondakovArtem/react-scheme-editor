@@ -1,6 +1,8 @@
-import { atom } from "jotai";
-import type { Position } from "../models";
-import { configAtom } from ".";
+import { atom } from 'jotai';
+
+import type { Position } from '../models';
+
+import { configAtom } from './config.context';
 
 const DEF_POSITION = { x: 0, y: 0 };
 export const canvasPositionAtom = atom(

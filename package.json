@@ -1,28 +1,44 @@
 {
-  "name": "react-schema-editor",
+  "name": "react-scheme-editor",
   "version": "0.1.0",
-  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "homepage": "https://github.com/KondakovArtem/react-schema-editor",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KondakovArtem/react-schema-editor"
+  },
+  "keywords": [
+    "react",
+    "scheme-editor",
+    "library",
+    "typescript"
+  ],
+  "author": "Kondakov Artem <kondakov.artem@gmail.com>",
+  "bugs": {
+    "url": "https://github.com/KondakovArtem/react-schema-editor/issues"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "dependencies": {
     "classnames": "^2.5.1",
     "fast-deep-equal": "^3.1.3",
-    "jotai": "^2.9.3",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "jotai": "^2.11.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "svg-points": "^6.0.1"
   },
   "devDependencies": {
-    "@storybook/addon-designs": "^8.0.3",
-    "@storybook/addon-essentials": "^8.0.8",
-    "@storybook/addon-interactions": "^8.0.8",
-    "@storybook/addon-links": "^8.0.8",
-    "@storybook/addon-onboarding": "^8.0.8",
-    "@storybook/blocks": "^8.0.8",
-    "@storybook/react": "^8.0.8",
-    "@storybook/react-vite": "^8.0.8",
-    "@storybook/test": "^8.0.8",
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
+    "@storybook/addon-designs": "^8.0.4",
+    "@storybook/addon-essentials": "^8.4.7",
+    "@storybook/addon-interactions": "^8.4.7",
+    "@storybook/addon-links": "^8.4.7",
+    "@storybook/addon-onboarding": "^8.4.7",
+    "@storybook/blocks": "^8.4.7",
+    "@storybook/react": "^8.4.7",
+    "@storybook/react-vite": "^8.4.7",
+    "@storybook/test": "^8.4.7",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^22.5.5",
@@ -44,7 +60,7 @@
     "prettier": "^3.3.3",
     "react-scripts": "5.0.1",
     "sass": "^1.77.8",
-    "storybook": "^8.0.8",
+    "storybook": "^8.4.7",
     "stylelint": "^16.1.0",
     "stylelint-config-idiomatic-order": "^10.0.0",
     "stylelint-config-prettier-scss": "^1.0.0",
@@ -59,17 +75,11 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "vite build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
   },
   "browserslist": {
     "production": [

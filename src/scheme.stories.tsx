@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import type { Meta, StoryObj } from '@storybook/react';
 import { SchemaEditor } from 'lib/components/SchemaEditor';
 import { arrows } from 'lib/components/link/arrows';
@@ -11,7 +12,7 @@ import {
   SchemaEditorNodeLinkArrow,
   SchemaEditorNodeSlot,
   SchemaEditorProps,
-  TangentDirections,
+  TangentDirections
 } from 'lib/models';
 import { PropsWithChildren, memo, useCallback, useMemo, useState } from 'react';
 
@@ -21,7 +22,7 @@ type Story = StoryObj<typeof SchemaEditor>;
 
 export default {
   title: 'Schema Editor/Default',
-  component: SchemaEditor,
+  component: SchemaEditor
   // tags: ['autodocs'],
 } as Meta<typeof SchemaEditor>;
 
@@ -29,14 +30,14 @@ function generateNodes(count: number) {
   const nodes = [];
   const types = ['simple', 'simple2'];
 
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < count; i += 1) {
     const node = {
       id: (i + 1).toString(), // Уникальный ID
       position: {
         x: Math.floor(Math.random() * 1000), // Случайное значение x
-        y: Math.floor(Math.random() * 1000), // Случайное значение y
+        y: Math.floor(Math.random() * 1000) // Случайное значение y
       },
-      type: types[Math.floor(Math.random() * types.length)], // Случайный тип
+      type: types[Math.floor(Math.random() * types.length)] // Случайный тип
     };
 
     nodes.push(node);
@@ -52,18 +53,18 @@ function generateLinks(count: number): SchemaEditorNodeLink[] {
 
   const arrowIds = Object.keys(arrows);
 
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < count; i += 1) {
     links.push({
       id: (i + 1).toString(), // Уникальный ID
-      from: fromIds[Math.floor(Math.random() * fromIds.length)] + '',
+      from: `${fromIds[Math.floor(Math.random() * fromIds.length)]}`,
       fromArrow: arrowIds[
         Math.floor(Math.random() * arrowIds.length)
       ] as SchemaEditorNodeLinkArrow,
       toArrow: arrowIds[
         Math.floor(Math.random() * arrowIds.length)
       ] as SchemaEditorNodeLinkArrow,
-      to: toIds[Math.floor(Math.random() * toIds.length)] + '',
-      points: [],
+      to: `${toIds[Math.floor(Math.random() * toIds.length)]}`,
+      points: []
     });
   }
 
@@ -76,11 +77,11 @@ const test = {
       id: '44158027-f3fb-4702-a582-aec35380cd77',
       position: {
         x: 50,
-        y: 50,
+        y: 50
       },
       size: {
         width: 300,
-        height: 200,
+        height: 200
       },
       type: 'simple',
       slots: [
@@ -88,39 +89,39 @@ const test = {
           id: '44158027-f3fb-4702-a582-aec35380cd77.slot_1',
           direction: {
             in: [TangentDirections.LEFT],
-            out: [TangentDirections.RIGHT],
+            out: [TangentDirections.RIGHT]
           },
           visualDirection: 'right',
           data: {
-            title: 'Slot 1',
-          },
+            title: 'Slot 1'
+          }
         },
         {
           id: '44158027-f3fb-4702-a582-aec35380cd77.slot_2',
           direction: 'in',
           visualDirection: 'right',
           data: {
-            title: 'Slot 2',
-          },
+            title: 'Slot 2'
+          }
         },
         {
           id: '44158027-f3fb-4702-a582-aec35380cd77.slot_3',
           direction: 'out',
           visualDirection: 'right',
           data: {
-            title: 'Slot 3',
-          },
-        },
+            title: 'Slot 3'
+          }
+        }
       ],
       data: {
-        name: 'QueryDatabaseTable',
-      },
+        name: 'QueryDatabaseTable'
+      }
     },
     {
       id: '867b169e-6215-4d5d-9068-134608ee4c12',
       position: {
         x: 220,
-        y: 418,
+        y: 418
       },
       type: 'simple2',
       slots: [
@@ -128,17 +129,17 @@ const test = {
           id: '867b169e-6215-4d5d-9068-134608ee4c12.slot_1',
           direction: {
             in: [TangentDirections.LEFT],
-            out: [TangentDirections.RIGHT],
+            out: [TangentDirections.RIGHT]
           },
           data: {
-            title: 'Slot 1',
-          },
-        },
+            title: 'Slot 1'
+          }
+        }
       ],
       data: {
-        name: 'SplitJson',
-      },
-    },
+        name: 'SplitJson'
+      }
+    }
   ],
   links: [
     {
@@ -150,8 +151,8 @@ const test = {
       lineColor: '#9090FF',
       lineColorActive: '#FF9090',
       lineType: 'dashed',
-      fromArrow: 'arrowMany',
-    },
+      fromArrow: 'arrowMany'
+    }
     // {
     //   id: "97d857ac-c62f-4742-ae97-d490524bf0e2",
     //   points: [],
@@ -160,7 +161,7 @@ const test = {
     //   to: "44158027-f3fb-4702-a582-aec35380cd77.slot_1",
     //   lineColor: "var(--success-default)",
     // },
-  ],
+  ]
 } as SchemaEditorData;
 
 export const Default: Story = {
@@ -168,11 +169,11 @@ export const Default: Story = {
     const [config, setConfig] = useState<SchemaEditorConfig>({
       canvasPosition: { x: 100, y: 100 },
       zoom: 0.2,
-      showNavigator: false,
+      showNavigator: false
     });
 
     const [data, setData] = useState<SchemaEditorData>(
-      test as SchemaEditorData,
+      test as SchemaEditorData
       //   {
       //   nodes,
       //   links,
@@ -197,28 +198,13 @@ export const Default: Story = {
         </button>
         <div style={{ width: '1000px', height: '600px', position: 'relative' }}>
           <div style={{ fontSize: '8px' }}>{JSON.stringify(config)}</div>
-          <button onClick={() => setText(text + 'bla')}>{text}</button>
+          <button onClick={() => setText(`${text}bla`)}>{text}</button>
           <SchemaEditor
-            data={data}
             config={config}
-            onChangeConfig={useCallback<
-              NonNullable<SchemaEditorProps['onChangeConfig']>
-            >(
-              (c: Partial<SchemaEditorConfig>) =>
-                setConfig((o) => ({ ...o, ...c })),
-              [],
-            )}
-            onSelect={useCallback<NonNullable<SchemaEditorProps['onSelect']>>(
-              (selected) => setConfig((c) => ({ ...c, selected })),
-              [],
-            )}
-            onChangeData={useCallback<
-              NonNullable<SchemaEditorProps['onChangeData']>
-            >((data) => setData((d) => ({ ...d, ...data })), [])}
+            data={data}
             onAddLink={useCallback<NonNullable<SchemaEditorProps['onAddLink']>>(
               (data) =>
                 setData((d) => {
-                  debugger;
                   return {
                     ...d,
                     links: [
@@ -226,14 +212,26 @@ export const Default: Story = {
                       {
                         id: `${Math.random()}`,
                         ...data,
-                        points: [],
-                      },
-                    ],
+                        points: []
+                      }
+                    ]
                   };
-
-                  // ...d, ...data
                 }),
-              [],
+              []
+            )}
+            onChangeConfig={useCallback<
+              NonNullable<SchemaEditorProps['onChangeConfig']>
+            >(
+              (c: Partial<SchemaEditorConfig>) =>
+                setConfig((o) => ({ ...o, ...c })),
+              []
+            )}
+            onChangeData={useCallback<
+              NonNullable<SchemaEditorProps['onChangeData']>
+            >((data) => setData((d) => ({ ...d, ...data })), [])}
+            onSelect={useCallback<NonNullable<SchemaEditorProps['onSelect']>>(
+              (selected) => setConfig((c) => ({ ...c, selected })),
+              []
             )}
           >
             {useMemo(
@@ -245,20 +243,20 @@ export const Default: Story = {
                   text={text}
                 />
               ),
-              [text],
+              [text]
             )}
           </SchemaEditor>
         </div>
       </div>
     );
-  },
+  }
 };
 
 const SampleNode = memo(
   ({
     data,
     text,
-    setText,
+    setText
   }: {
     data: SchemaEditorNode;
     selected?: boolean;
@@ -275,18 +273,19 @@ const SampleNode = memo(
           } else if (slot.direction?.out) {
             pre.outSlots.push(slot);
           }
+
           return pre;
         },
         {
           inSlots: [] as SchemaEditorNodeSlot[],
-          outSlots: [] as SchemaEditorNodeSlot[],
-        },
+          outSlots: [] as SchemaEditorNodeSlot[]
+        }
       );
     }, [data.slots]);
 
     return (
       <div>
-        <button onClick={() => setText(text + 'bla')}>{text}</button>
+        <button onClick={() => setText(`${text}bla`)}>{text}</button>
         {data.type === 'simple' && <div>simple={data.id}</div>}
         {data.type === 'simple2' && <div>simple2={data.id}</div>}
         {/* <div>sample selected={selected + ""}</div> */}
@@ -294,7 +293,7 @@ const SampleNode = memo(
           <div>
             {inSlots.map((slot) => {
               return (
-                <Slot key={slot.id} data={slot}>
+                <Slot data={slot} key={slot.id}>
                   <div className={st.inSlot}></div>
                 </Slot>
               );
@@ -303,7 +302,7 @@ const SampleNode = memo(
           <div>
             {outSlots.map((slot) => {
               return (
-                <Slot key={slot.id} data={slot}>
+                <Slot data={slot} key={slot.id}>
                   <div className={st.outSlot}></div>
                 </Slot>
               );
@@ -315,6 +314,6 @@ const SampleNode = memo(
         </div>
       </div>
     );
-  },
+  }
 );
 SampleNode.displayName = 'SampleNode';

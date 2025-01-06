@@ -1,33 +1,30 @@
-import { FC } from "react";
+import { useAtomValue } from 'jotai';
+import { FC } from 'react';
 
-import { useAtomValue } from "jotai";
+import { draftLinkAtom } from '../../context/dragNodePosition.context';
+import { useSlotPosition } from '../../hooks/usePosition';
 
-import { draftLinkAtom } from "../../context/dragNodePosition.context";
-import { LinkPath } from "./LinkPath";
-import { useSlotPosition } from "../../hooks/usePosition";
+import { LinkPath } from './LinkPath';
+import { DRAFT_ID } from './useLinkPath';
 
 export const SchemaLinkDraft: FC = () => {
   const draftLink = useAtomValue(draftLinkAtom);
+  const { from, to } = draftLink ?? {};
 
-  const fromSlot =
-    useSlotPosition(draftLink?.from.id, "out") ?? draftLink?.from?.rect;
-  const toSlot =
-    useSlotPosition(draftLink?.to.id, "in") ?? draftLink?.to?.rect;
+  const fromSlot = useSlotPosition(from?.id, 'out') ?? from?.rect;
+  const toSlot = useSlotPosition(to?.id, 'in') ?? to?.rect;
 
-  console.log(fromSlot, toSlot);
+  if (!fromSlot || !toSlot) return undefined;
 
   return (
-    <>
-      {fromSlot && toSlot && (
-        <LinkPath
-          id="__draft"
-          handle={false}
-          fromSlot={fromSlot}
-          toSlot={toSlot}
-        />
-      )}
-    </>
+    <LinkPath
+      fromSlot={fromSlot}
+      handle={false}
+      id={DRAFT_ID}
+      lineType="schema-editor__link--drag"
+      toSlot={toSlot}
+    />
   );
 };
 
-SchemaLinkDraft.displayName = "SchemaLinkDraft";
+SchemaLinkDraft.displayName = 'SchemaLinkDraft';

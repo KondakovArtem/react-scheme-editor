@@ -1,8 +1,8 @@
-import { TangentDirections } from "../models";
-import { Curve } from "./curve";
+import { TangentDirections } from '../models';
 
-import { Point } from "./point";
-import { Rect } from "./rect";
+import { Curve } from './curve';
+import { Point } from './point';
+import { Rect } from './rect';
 
 interface ILinkView {
   sourceBBox: Rect;
@@ -10,11 +10,11 @@ interface ILinkView {
 }
 
 enum Directions {
-  AUTO = "auto",
-  CLOSEST_POINT = "closest-point",
-  HORIZONTAL = "horizontal",
-  OUTWARDS = "outwards",
-  VERTICAL = "vertical",
+  AUTO = 'auto',
+  CLOSEST_POINT = 'closest-point',
+  HORIZONTAL = 'horizontal',
+  OUTWARDS = 'outwards',
+  VERTICAL = 'vertical'
 }
 
 function angleBetweenVectors(v1: Point, v2: Point): number {
@@ -25,6 +25,7 @@ function angleBetweenVectors(v1: Point, v2: Point): number {
   if (cos > 1) {
     cos = 1;
   }
+
   return Math.acos(cos);
 }
 
@@ -38,13 +39,13 @@ function getAutoSourceDirection(linkView: ILinkView, route: Point[]): Point {
   }
 
   switch (sourceSide) {
-    case "top":
+    case 'top':
       return new Point(0, -1);
-    case "bottom":
+    case 'bottom':
       return new Point(0, 1);
-    case "right":
+    case 'right':
       return new Point(1, 0);
-    case "left":
+    case 'left':
       return new Point(-1, 0);
     default:
       return new Point(0, -1);
@@ -61,13 +62,13 @@ function getAutoTargetDirection(linkView: ILinkView, route: Point[]): Point {
   }
 
   switch (targetSide) {
-    case "top":
+    case 'top':
       return new Point(0, -1);
-    case "bottom":
+    case 'bottom':
       return new Point(0, 1);
-    case "right":
+    case 'right':
       return new Point(1, 0);
-    case "left":
+    case 'left':
       return new Point(-1, 0);
     default:
       return new Point(0, -1);
@@ -100,6 +101,7 @@ function getTargetTangentDirection(
         return options.targetDirection as Point;
     }
   }
+
   return new Point(0, -1);
   // switch (direction) {
   //     case Directions.HORIZONTAL:
@@ -142,6 +144,7 @@ function getSourceTangentDirection(
         return options.sourceDirection as Point;
     }
   }
+
   return new Point(0, -1);
   // switch (direction) {
   //     case Directions.HORIZONTAL:
@@ -207,7 +210,7 @@ export function curveLink(
     sourceTangent: opt.sourceTangent ? new Point(opt.sourceTangent) : null,
     targetTangent: opt.targetTangent ? new Point(opt.targetTangent) : null,
     sourceDirection: opt.sourceDirection,
-    targetDirection: opt.targetDirection,
+    targetDirection: opt.targetDirection
   };
 
   // The calculation of a sourceTangent
@@ -278,9 +281,8 @@ export function curveLink(
     targetTangent,
     options
   );
+
   return catmullRomCurves.map((crv) => catmullRomToBezier(crv, options));
-  // const path = new Path(bezierCurves).round(precision);
-  // return raw ? path : path.serialize();
 }
 
 function determinant(v1: Point, v2: Point): number {
@@ -298,6 +300,7 @@ function catmullRomToBezier(points: Point[], options: InnerOptions): Curve {
   const bcp2 = new Point();
   bcp2.x = points[2].x + (points[3].x - points[1].x) / (6 * tau);
   bcp2.y = points[2].y + (points[3].y - points[1].y) / (6 * tau);
+
   return new Curve(points[1], bcp1, bcp2, points[2]);
 }
 
@@ -323,7 +326,7 @@ function createCatmullRomCurves(
   const catmullRomCurves = [];
   const n = points.length - 1;
 
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < n; i += 1) {
     distances[i] = points[i].distance(points[i + 1]);
   }
 
@@ -331,7 +334,7 @@ function createCatmullRomCurves(
   tangents[n] = targetTangent;
 
   // The calculation of tangents of vertices
-  for (let i$1 = 1; i$1 < n; i$1++) {
+  for (let i$1 = 1; i$1 < n; i$1 += 1) {
     let tpPrev;
     let tpNext;
     if (i$1 === 1) {
@@ -381,7 +384,7 @@ function createCatmullRomCurves(
   }
 
   // The building of a Catmull-Rom curve based of tangents of points
-  for (let i$2 = 0; i$2 < n; i$2++) {
+  for (let i$2 = 0; i$2 < n; i$2 += 1) {
     let p0;
     let p3;
     if (i$2 === 0) {
@@ -411,5 +414,6 @@ function createCatmullRomCurves(
 
     catmullRomCurves[i$2] = [p0, points[i$2], points[i$2 + 1], p3];
   }
+
   return catmullRomCurves;
 }

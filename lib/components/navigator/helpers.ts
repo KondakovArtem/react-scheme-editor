@@ -1,10 +1,10 @@
-import { NodeRects } from "../../context/rects.context";
+import { NodeRects } from '../../context/rects.context';
 import type {
   Position,
-  Size,
   SchemaEditorData,
   SchemaEditorNode,
-} from "../../models";
+  Size
+} from '../../models';
 
 export interface ViewportParams {
   minPos: Position;
@@ -24,7 +24,7 @@ export interface MapParams {
    * Он определяется как минимальное значение между коэффициентами по ширине
    * и высоте (widthK и heightK), чтобы сохранить пропорции и уместить всю
    * карту в заданные максимальные размеры (mapMaxSize). Это позволяет избежать
-   * искажений и сохранить правильное соотношение сторон при отображении карты **/
+   * искажений и сохранить правильное соотношение сторон при отображении карты * */
   sizeK: number;
   mapSize: Size;
   mapPosition: Position;
@@ -76,11 +76,11 @@ export function updateViewportParams(
   const { x, y } = position; // Canvas shift in real px
   const virtualViewportPosition = {
     x: -Math.round(x / zoom),
-    y: -Math.round(y / zoom),
+    y: -Math.round(y / zoom)
   };
   const virtualViewportSize = {
     width: Math.round(width / zoom),
-    height: Math.round(height / zoom),
+    height: Math.round(height / zoom)
   };
 
   const points: Position[] = [];
@@ -93,7 +93,7 @@ export function updateViewportParams(
     const { width: w, height: h } = rect;
     points.push({
       x: node.position.x + w,
-      y: node.position.y + h,
+      y: node.position.y + h
     });
   });
   data?.links?.forEach((link) => {
@@ -107,16 +107,16 @@ export function updateViewportParams(
 
   points.push(virtualViewportPosition, {
     x: virtualViewportPosition.x + virtualViewportSize.width,
-    y: virtualViewportPosition.y + virtualViewportSize.height,
+    y: virtualViewportPosition.y + virtualViewportSize.height
   });
   const result: ViewportParams = {
     minPos: {
       x: Math.min(...points.map(({ x }) => x)),
-      y: Math.min(...points.map(({ y }) => y)),
+      y: Math.min(...points.map(({ y }) => y))
     },
     maxPos: {
       x: Math.max(...points.map(({ x }) => x)),
-      y: Math.max(...points.map(({ y }) => y)),
+      y: Math.max(...points.map(({ y }) => y))
     },
     size: { width: 0, height: 0 },
     pos: { x: 0, y: 0 },
@@ -127,12 +127,12 @@ export function updateViewportParams(
     // top: 0,
     zoom,
     virtualViewportPosition,
-    virtualViewportSize,
+    virtualViewportSize
   };
 
   result.size = {
     width: (result.maxPos.x - result.minPos.x) * zoom * (scrollSizeK?.x ?? 1),
-    height: (result.maxPos.y - result.minPos.y) * zoom * (scrollSizeK?.y ?? 1),
+    height: (result.maxPos.y - result.minPos.y) * zoom * (scrollSizeK?.y ?? 1)
   };
   result.pos = {
     x:
@@ -142,8 +142,9 @@ export function updateViewportParams(
     y:
       (virtualViewportPosition.y - result.minPos.y) *
       zoom *
-      (scrollSizeK?.y ?? 1),
+      (scrollSizeK?.y ?? 1)
   };
+
   return result;
 }
 
@@ -163,23 +164,23 @@ export function updateMapParams({
   minPos,
   maxPos,
   virtualViewportPosition,
-  virtualViewportSize,
+  virtualViewportSize
 }: ViewportParams): MapParams {
   const virtualWidth = maxPos.x - minPos.x;
   const virtualHeight = maxPos.y - minPos.y;
   const widthK = MAP_MAX_SIZE.width / virtualWidth;
   const heightK = MAP_MAX_SIZE.height / virtualHeight;
 
-  const sizeK: MapParams["sizeK"] = Math.min(widthK, heightK);
+  const sizeK: MapParams['sizeK'] = Math.min(widthK, heightK);
 
   const mapSize = {
     width: virtualWidth * sizeK,
-    height: virtualHeight * sizeK,
+    height: virtualHeight * sizeK
   };
 
   const mapPosition = {
     x: (MAP_MAX_SIZE.width - mapSize.width) / 2,
-    y: (MAP_MAX_SIZE.height - mapSize.height) / 2,
+    y: (MAP_MAX_SIZE.height - mapSize.height) / 2
   };
 
   return {
@@ -188,12 +189,12 @@ export function updateMapParams({
     mapSize,
     framePosition: {
       x: mapPosition.x + (virtualViewportPosition.x - minPos.x) * sizeK,
-      y: mapPosition.y + (virtualViewportPosition.y - minPos.y) * sizeK,
+      y: mapPosition.y + (virtualViewportPosition.y - minPos.y) * sizeK
     },
     frameSize: {
       width: virtualViewportSize.width * sizeK,
-      height: virtualViewportSize.height * sizeK,
-    },
+      height: virtualViewportSize.height * sizeK
+    }
   };
 }
 
@@ -212,7 +213,7 @@ export function renderMap(
     mapParams: MapParams;
     viewportParams: ViewportParams;
     colors?: NavigatorColors;
-    selected?: SchemaEditorNode["id"][];
+    selected?: SchemaEditorNode['id'][];
   }
 ): void {
   // Get the current drag viewport and its map viewport.
@@ -221,7 +222,7 @@ export function renderMap(
 
   // Get the canvas element and its 2D rendering context.
   if (!canvas) return;
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
   // Retrieve map and viewport parameters.
@@ -234,8 +235,8 @@ export function renderMap(
   // Clear the canvas for fresh rendering.
   ctx.clearRect(0, 0, MAP_MAX_SIZE.width + 1, MAP_MAX_SIZE.height + 1);
 
-  ctx.fillStyle = opts.colors?.mapBg ?? "#ffffff";
-  ctx.strokeStyle = opts.colors?.mapStroke ?? "#aaaaaa";
+  ctx.fillStyle = opts.colors?.mapBg ?? '#ffffff';
+  ctx.strokeStyle = opts.colors?.mapStroke ?? '#aaaaaa';
 
   // Draw the map background and border.
   ctx.fillRect(
@@ -259,10 +260,10 @@ export function renderMap(
     }
 
     // Set base color for nodes.
-    let nodeBaseColor = "#000000";
+    let nodeBaseColor = '#000000';
 
     if (opts.selected?.includes(id)) {
-      nodeBaseColor = "#009900";
+      nodeBaseColor = '#009900';
     }
     ctx.strokeStyle = nodeBaseColor;
     ctx.fillStyle = `${nodeBaseColor}40`;

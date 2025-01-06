@@ -1,16 +1,16 @@
-import { toPath } from "svg-points";
+import { toPath } from 'svg-points';
+
 import {
-  TangentDirections,
-  Position,
-  TRect,
   ARROW_WIDTH,
-  SchemaEditorLinkModel,
   ESchemaEditorLinkModels,
+  Position,
+  SchemaEditorLinkModel,
   SlotRect,
-} from "../../models";
-import { Point } from "../../utils/point";
-import { Rect } from "../../utils/rect";
-import { curveLink } from "../../utils/curve-link";
+  TangentDirections
+} from '../../models';
+import { curveLink } from '../../utils/curve-link';
+import { Point } from '../../utils/point';
+import { Rect } from '../../utils/rect';
 
 function getVisualDirectionFrom(): TangentDirections {
   return (
@@ -38,7 +38,8 @@ function getAveragePoint(edgePoint: Point, shiftedPoint: Point): Point {
 }
 
 function convertToAbsPoint(rect: Rect, { x, y }: Position): Position {
-  if (!rect) throw new Error("Missing relative rect");
+  if (!rect) throw new Error('Missing relative rect');
+
   return { x: x + rect.x, y: y + rect.y };
 }
 
@@ -46,7 +47,8 @@ export function convertToRelativePoint(
   rect: Rect,
   { x, y }: Position
 ): Position {
-  if (!rect) throw new Error("Missing relative rect");
+  if (!rect) throw new Error('Missing relative rect');
+
   return { x: x - rect.x, y: y - rect.y };
 }
 
@@ -80,8 +82,8 @@ export function generatePoints(
 
   points = [...(points ?? [])];
 
-  let firstPoint = points.shift();
-  let lastPoint = points.pop();
+  const firstPoint = points.shift();
+  const lastPoint = points.pop();
 
   const fromPoints = fromD.getRelevantSidePoints(
     vdFrom,
@@ -91,14 +93,20 @@ export function generatePoints(
 
   const toPoints = toD.getRelevantSidePoints(
     vdTo,
-    lastPoint ? new Point(convertToAbsPoint(toD, lastPoint)) : fromD.center(),
+    lastPoint ? new Point(convertToAbsPoint(toD, lastPoint)) : fromPoints.point, // fromD.center(),
     ARROW_WIDTH
   );
+
+  // const toPoints = lastPoint ? toD.getRelevantSidePoints(
+  //   vdTo,
+  //   new Point(convertToAbsPoint(toD, lastPoint)),
+  //   ARROW_WIDTH
+  // ) : ;
 
   return {
     start: getAveragePoint(fromPoints.point, fromPoints.shiftedPoint),
     end: getAveragePoint(toPoints.point, toPoints.shiftedPoint),
-    points: [fromPoints.shiftedPoint, toPoints.shiftedPoint],
+    points: [fromPoints.shiftedPoint, toPoints.shiftedPoint]
   };
 
   // if (!points?.length) {
@@ -143,7 +151,8 @@ export function updatePath(
   const points = pathPoints.map((point) => new Point(point));
   const sourceDirection = fromRect.directions[0];
   const targetDirection = toRect.directions[0];
-  let newPath = "";
+
+  let newPath = '';
   if (points.length) {
     newPath = toPath(
       curveLink(
@@ -151,34 +160,17 @@ export function updatePath(
         {
           sourceDirection,
           targetDirection,
-          tension: 0.6,
+          tension: 0.6
         },
         {
           sourceBBox: new Rect(fromRect),
-          targetBBox: new Rect(toRect),
+          targetBBox: new Rect(toRect)
         }
       ).flatMap((curve, idx) => curve.toSvgPoints(!idx))
     );
   }
-  if (newPath.includes('NaN')) {
-    debugger;
-  }
+
   return newPath;
-
-  //   if (newPath !== this.path) {
-  //     const pathHandleEl = this.pathHandleRef.nativeElement;
-  //     const pathEl = this.pathRef.nativeElement;
-  //     this.path = newPath;
-
-  //     if (newPath) {
-  //       pathEl.setAttributeNS(null, "d", newPath);
-  //       pathHandleEl.setAttributeNS(null, "d", newPath);
-  //     } else {
-  //       pathEl.removeAttributeNS(null, "d");
-  //       pathHandleEl.removeAttributeNS(null, "d");
-  //     }
-  //     this.cdr.detectChanges();
-  //   }
 }
 
 export const linkModels: {
@@ -190,12 +182,13 @@ export const linkModels: {
       if (pointsData) {
         return {
           path: updatePath(from, to, pointsData?.points),
-          points: pointsData.points,
+          points: pointsData.points
         };
       }
+
       return {
-        path: "",
-        points: [],
+        path: '',
+        points: []
       };
     },
     onDrag: ({ event, from, pointIndex, points, to, originPoint }) => {
@@ -203,7 +196,7 @@ export const linkModels: {
       if (dPos) {
         const dragP = new Point({
           x: originPoint.x + dPos.scale.x,
-          y: originPoint.y + dPos.scale.y,
+          y: originPoint.y + dPos.scale.y
         });
         const count = points.length;
         points = [];
@@ -230,7 +223,8 @@ export const linkModels: {
           points[pointIndex] = dragP.toJson();
         }
       }
+
       return points;
-    },
-  },
+    }
+  }
 };

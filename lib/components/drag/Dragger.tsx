@@ -1,17 +1,16 @@
+// import { createStateContextFactory } from "../../context/context.factory";
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   FC,
   MutableRefObject,
   PropsWithChildren,
   useEffect,
-  useRef,
-} from "react";
+  useRef
+} from 'react';
 
-import { MouseTouchEvent, Position } from "../../models";
-
-// import { createStateContextFactory } from "../../context/context.factory";
-import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
-import { canvasPositionAtom } from "../../context/canvasPosition.context";
-import { zoomAtom } from "../../context/zoom.context";
+import { canvasPositionAtom } from '../../context/canvasPosition.context';
+import { zoomAtom } from '../../context/zoom.context';
+import { MouseTouchEvent, Position } from '../../models';
 
 export interface IDragItem {
   dragStart?: (event: IDraggingEvent) => void;
@@ -55,38 +54,45 @@ export interface IDraggingEvent {
   zoom?: number;
 }
 
+export type DragEventCallback = (
+  e: MouseTouchEvent
+) => IDraggingEvent | undefined;
+
 export function addCoords(coord: Position, ...args: Position[]) {
   return args.reduce((pre: Position, item, i) => {
-    if (typeof item === "number") {
+    if (typeof item === 'number') {
       item = { x: item, y: item };
     }
+
     return {
       x: pre.x + item.x,
-      y: pre.y + item.y,
+      y: pre.y + item.y
     };
   }, coord);
 }
 
 export function subCoords(coord: Position, ...args: Position[]) {
   return args.reduce((pre: Position, item, i) => {
-    if (typeof item === "number") {
+    if (typeof item === 'number') {
       item = { x: item, y: item };
     }
+
     return {
       x: pre.x - item.x,
-      y: pre.y - item.y,
+      y: pre.y - item.y
     };
   }, coord);
 }
 
 export function divCoords(coord: Position, ...args: (Position | number)[]) {
   return args.reduce((pre: Position, item, i) => {
-    if (typeof item === "number") {
+    if (typeof item === 'number') {
       item = { x: item, y: item };
     }
+
     return {
       x: pre.x / item.x,
-      y: pre.y / item.y,
+      y: pre.y / item.y
     };
   }, coord);
 }
@@ -95,7 +101,7 @@ function prepareDraggingPos(
   handler: Position,
   canvasRect: DOMRect,
   canvasPosition: Position,
-  zoom: number = 1
+  zoom = 1
 ): IDraggingPos {
   return {
     handler,
@@ -103,7 +109,7 @@ function prepareDraggingPos(
     scale: subCoords(
       divCoords(subCoords(handler, canvasRect), zoom),
       divCoords(canvasPosition, zoom)
-    ),
+    )
   };
 }
 
@@ -132,7 +138,7 @@ export const Dragger: FC<DraggerProps> = (props) => {
     originPos: undefined,
     enabled,
     zoom,
-    canvasPosition,
+    canvasPosition
   });
   Object.assign(stateRef.current, { zoom, canvasPosition, enabled });
 
@@ -153,13 +159,13 @@ export const Dragger: FC<DraggerProps> = (props) => {
         state.originPos = prepareDraggingPos(
           {
             x:
-              e.type === "touchmove"
+              e.type === 'touchmove'
                 ? (e as TouchEvent).touches[0].clientX
                 : (e as MouseEvent).clientX,
             y:
-              e.type === "touchmove"
+              e.type === 'touchmove'
                 ? (e as TouchEvent).touches[0].clientY
-                : (e as MouseEvent).clientY,
+                : (e as MouseEvent).clientY
           },
           draggerRect,
           canvasPosition,
@@ -170,18 +176,18 @@ export const Dragger: FC<DraggerProps> = (props) => {
       if (!state.curDragItem) {
         state.curDragItem = dragItem;
 
-        window.addEventListener("mouseup", dragEndEventListener);
-        window.addEventListener("mousemove", draggingEventListener);
+        window.addEventListener('mouseup', dragEndEventListener);
+        window.addEventListener('mousemove', draggingEventListener);
 
-        window.addEventListener("touchend", dragEndEventListener);
-        window.addEventListener("touchmove", draggingEventListener);
+        window.addEventListener('touchend', dragEndEventListener);
+        window.addEventListener('touchmove', draggingEventListener);
 
         if (state.originPos) {
           dragItem.dragStart?.({
             origin: state.originPos,
             current: state.originPos,
             e,
-            zoom,
+            zoom
           });
         }
       }
@@ -191,38 +197,42 @@ export const Dragger: FC<DraggerProps> = (props) => {
       const { enabled, curDragItem, originPos, zoom, canvasPosition } =
         stateRef.current;
 
-      if (enabled && curDragItem) {
-        const draggerRect = dragRef.current?.getBoundingClientRect();
-        if (draggerRect && originPos) {
-          const current = prepareDraggingPos(
-            {
-              x:
-                e.type === "touchmove"
-                  ? (e as TouchEvent).touches[0].clientX
-                  : (e as MouseEvent).clientX,
-              y:
-                e.type === "touchmove"
-                  ? (e as TouchEvent).touches[0].clientY
-                  : (e as MouseEvent).clientY,
-            },
-            draggerRect,
-            canvasPosition,
-            zoom
-          );
-
-          return {
-            e,
-            current: current,
-            origin: originPos as IDraggingPos,
-            dPos: {
-              canvas: subCoords(current.canvas, originPos.canvas),
-              handler: subCoords(current.handler, originPos.handler),
-              scale: subCoords(current.scale, originPos.scale),
-            },
-            zoom,
-          };
-        }
+      if (!enabled || !curDragItem) {
+        return undefined;
       }
+      const draggerRect = dragRef.current?.getBoundingClientRect();
+
+      if (!draggerRect || !originPos) {
+        return undefined;
+      }
+
+      const current = prepareDraggingPos(
+        {
+          x:
+            e.type === 'touchmove'
+              ? (e as TouchEvent).touches[0].clientX
+              : (e as MouseEvent).clientX,
+          y:
+            e.type === 'touchmove'
+              ? (e as TouchEvent).touches[0].clientY
+              : (e as MouseEvent).clientY
+        },
+        draggerRect,
+        canvasPosition,
+        zoom
+      );
+
+      return {
+        e,
+        current,
+        origin: originPos as IDraggingPos,
+        dPos: {
+          canvas: subCoords(current.canvas, originPos.canvas),
+          handler: subCoords(current.handler, originPos.handler),
+          scale: subCoords(current.scale, originPos.scale)
+        },
+        zoom
+      };
     },
 
     dragMove: (e: MouseTouchEvent) => {
@@ -230,7 +240,7 @@ export const Dragger: FC<DraggerProps> = (props) => {
         const { dragEvent } = methodRef.current;
         const { curDragItem } = stateRef.current;
         const event = dragEvent(e);
-        event && curDragItem?.dragMove?.(event);
+        if (event) curDragItem?.dragMove?.(event);
       });
     },
     dragEnd: (e: MouseTouchEvent) => {
@@ -238,22 +248,22 @@ export const Dragger: FC<DraggerProps> = (props) => {
         methodRef.current;
       const { curDragItem } = stateRef.current;
       const event = dragEvent(e);
-      event && curDragItem?.dragEnd?.(event);
+      if (event) curDragItem?.dragEnd?.(event);
 
       methodRef.current.setEnabled(false);
       delete stateRef.current.curDragItem;
 
       const el = window;
-      el.removeEventListener("mouseup", dragEndEventListener);
-      el.removeEventListener("mousemove", draggingEventListener);
+      el.removeEventListener('mouseup', dragEndEventListener);
+      el.removeEventListener('mousemove', draggingEventListener);
 
-      el.removeEventListener("touchend", dragEndEventListener);
-      el.removeEventListener("touchmove", draggingEventListener);
+      el.removeEventListener('touchend', dragEndEventListener);
+      el.removeEventListener('touchmove', draggingEventListener);
     },
     draggingEventListener: (e: MouseEvent | TouchEvent) => {
       e.stopPropagation();
       methodRef.current.dragMove(e);
-    },
+    }
   });
 
   const setDraggerContext = useSetAtom(draggerContextAtom);
@@ -264,5 +274,5 @@ export const Dragger: FC<DraggerProps> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return <>{children}</>;
+  return children;
 };

@@ -1,21 +1,20 @@
-import { dragPositionAtom } from "../../context/dragNodePosition.context";
-import type { Position, ESchemaEditorLinkModels, SlotRect } from "../../models";
+import { useMemo } from 'react';
 
-import { useMemo } from "react";
-import { linkModels } from "./helpers";
-import { useSelectAtomValue } from "../../utils/atom.selector";
+import { dragPositionAtom } from '../../context/dragNodePosition.context';
+import type { ESchemaEditorLinkModels, Position, SlotRect } from '../../models';
+import { useSelectAtomValue } from '../../utils/atom.selector';
 
-const EMPTYDATA = {
-  path: "",
-  points: [] as Position[],
-};
+import { linkModels } from './helpers';
+
+export const DRAFT_ID = '__draft';
+const EMPTYDATA = { path: '', points: [] as Position[], drag: false };
 
 export function useLinkPath(
   from: SlotRect | undefined,
   to: SlotRect | undefined,
-  rawpoints: Position[] = [],
   linkId: string,
-  model: ESchemaEditorLinkModels
+  model: ESchemaEditorLinkModels,
+  rawpoints: Position[] = []
 ) {
   const points = useMemo(() => rawpoints ?? [], [rawpoints]);
 
@@ -26,16 +25,19 @@ export function useLinkPath(
   );
 
   return useMemo(() => {
+    if (!from || !to) {
+      return EMPTYDATA;
+    }
     const resPoints = [...(points ?? [])];
+
     dragPoints?.forEach((dragPoint, idx) => {
       resPoints[idx] = dragPoint ?? resPoints[idx];
     });
 
-    if (!!from && !!to) {
-      const newLinkModel =
-        linkModels[model]?.render({ from, to, points: resPoints }) ?? EMPTYDATA;
-      return newLinkModel;
-    }
-    return EMPTYDATA;
-  }, [dragPoints, from, model, points, to]);
+    return {
+      ...(linkModels[model]?.render({ from, to, points: resPoints }) ??
+        EMPTYDATA),
+      drag: !!dragPoints?.length || linkId === DRAFT_ID
+    };
+  }, [dragPoints, from, linkId, model, points, to]);
 }

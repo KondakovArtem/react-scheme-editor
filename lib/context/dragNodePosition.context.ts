@@ -1,24 +1,26 @@
-import { atom } from "jotai";
+import { atom } from 'jotai';
+
+import { IDraggingEvent } from '../components/drag/Dragger';
 import {
   Position,
   SchemaEditorNodeLinkDraft,
-  TangentDirections,
-} from "../models";
-import { selectedNodeAtom } from "./selected.context";
-import { IDraggingEvent } from "../components/drag/Dragger";
-import { NodeRects, nodeRectsAtom } from "./rects.context";
-import { dataAtom } from "./data.context";
-import { Rect } from "../utils/rect";
-import { methodsAtom } from "./methods.context";
+  TangentDirections
+} from '../models';
+import { Rect } from '../utils/rect';
 
-type DragPointerPosition = { [linkId: string]: Position[] };
+import { dataAtom } from './data.context';
+import { methodsAtom } from './methods.context';
+import { NodeRects, nodeRectsAtom } from './rects.context';
+import { selectedNodeAtom } from './selected.context';
+
+type DragPointerPosition = { [linkId: string]: Position[] | undefined };
 
 type DragPosition = {
   linkPointer: DragPointerPosition;
 };
 
 export const dragPositionAtom = atom<DragPosition>({
-  linkPointer: {},
+  linkPointer: {}
 });
 
 export const updateDragNodePositionAtom = atom(
@@ -35,7 +37,7 @@ export const updateDragNodePositionAtom = atom(
         pre[id] = {
           ...rect,
           x: origin.x + dPos.scale.x,
-          y: origin.y + dPos.scale.y,
+          y: origin.y + dPos.scale.y
         };
       }
 
@@ -43,7 +45,7 @@ export const updateDragNodePositionAtom = atom(
     }, {} as NodeRects);
     set(nodeRectsAtom, {
       ...rects,
-      ...dragNodeRects,
+      ...dragNodeRects
     });
   }
 );
@@ -57,15 +59,15 @@ export const updateDragPointerAtom = atom(
       ...dragPosition,
       linkPointer: {
         ...dragPosition.linkPointer,
-        ...linkPointer,
-      },
+        ...linkPointer
+      }
     });
   }
 );
 
 export const clearDragPointerAtom = atom(null, (get, set) => {
   set(dragPositionAtom, {
-    linkPointer: {},
+    linkPointer: {}
   });
 });
 
@@ -83,7 +85,7 @@ export const setDraftLinkToAtom = atom(
     const toRect = new Rect({
       ...event.current.scale,
       width: 1,
-      height: 1,
+      height: 1
     });
 
     const toId = Object.keys(rects).find(
@@ -92,11 +94,11 @@ export const setDraftLinkToAtom = atom(
     );
 
     set(draftLinkAtom, {
-      from: get(draftLinkAtom)?.from as SchemaEditorNodeLinkDraft["from"],
+      from: get(draftLinkAtom)?.from as SchemaEditorNodeLinkDraft['from'],
       to: {
         id: toId,
-        rect: { ...toRect.toJson(), directions: [TangentDirections.AUTO] },
-      },
+        rect: { ...toRect.toJson(), directions: [TangentDirections.AUTO] }
+      }
     });
   }
 );
@@ -110,7 +112,7 @@ export const onAddDraftLinkAtom = atom(
     if (draftLink?.from.id && draftLink?.to.id) {
       onAddLink?.({
         from: draftLink?.from.id,
-        to: draftLink?.to.id,
+        to: draftLink?.to.id
       });
     }
     set(draftLinkAtom, undefined);

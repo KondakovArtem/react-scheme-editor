@@ -1,4 +1,4 @@
-@use "sass:math";
+@use 'sass:math';
 
 .schema-editor__link {
   svg {
@@ -48,6 +48,13 @@
     transition-delay: var(--schema-editor-line-point-transition-delay);
     transition-duration: 0.2s;
     transition-property: opacity;
+  }
+
+  &--drag {
+    path {
+      transition: 0.06s;
+      transition-property: inherit;
+    }
   }
 
   &--hover {

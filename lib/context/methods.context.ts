@@ -1,6 +1,7 @@
-import { MouseEvent } from "react";
-import type { Position, SchemaEditorConfig, SchemaEditorData } from "../models";
-import { atom } from "jotai";
+import { atom } from 'jotai';
+import { MouseEvent } from 'react';
+
+import type { Position, SchemaEditorConfig, SchemaEditorData } from '../models';
 
 export interface ISchemaEditorMethodsContext {
   onChangeConfig?(data: Partial<SchemaEditorConfig>): void;

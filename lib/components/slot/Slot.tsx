@@ -7,7 +7,7 @@ import {
   useContext,
   useEffect,
   useRef,
-  useState,
+  useState
 } from 'react';
 
 import { NodeRects, updateRectsAtom } from '../../context/rects.context';
@@ -23,7 +23,7 @@ import './Slot.scss';
 
 export const Slot: FC<PropsWithChildren<{ data: SchemaEditorNodeSlot }>> = ({
   data,
-  children,
+  children
 }) => {
   const { id, direction } = data;
   const ref = useRef<HTMLDivElement | null>(null);
@@ -39,7 +39,7 @@ export const Slot: FC<PropsWithChildren<{ data: SchemaEditorNodeSlot }>> = ({
       setZoomDelay(zoom);
     },
     500,
-    [zoom],
+    [zoom]
   );
   const [position, setPosition] = useState<Position | undefined>(nodePosition);
 
@@ -47,11 +47,11 @@ export const Slot: FC<PropsWithChildren<{ data: SchemaEditorNodeSlot }>> = ({
     const box = ref.current?.getBoundingClientRect();
     const nodeBox = nodeRef?.current?.getBoundingClientRect();
     if (!box || !nodeBox || !nodePosition) {
-      return undefined;
+      return;
     }
     setPosition({
       x: (box.x - nodeBox.x) / zoomDelay + nodePosition.x,
-      y: (box.y - nodeBox.y) / zoomDelay + nodePosition.y,
+      y: (box.y - nodeBox.y) / zoomDelay + nodePosition.y
     });
   }, [nodePosition, ref, nodeRef, zoomDelay]);
 
@@ -66,19 +66,18 @@ export const Slot: FC<PropsWithChildren<{ data: SchemaEditorNodeSlot }>> = ({
         if (height !== undefined) newRect.height = height;
         if (!isEmpty(newRect)) {
           const newRects = {
-            [id]: isEmpty(newRect) ? undefined : newRect,
+            [id]: isEmpty(newRect) ? undefined : newRect
           } as NodeRects;
-          //   console.log("slot=", newRects);
           updateRects?.(newRects);
         }
       },
-      [id, updateRects],
+      [id, updateRects]
     ),
-    position,
+    position
   });
 
   return (
-    <div ref={ref} className={cn('schema-editor__slot', direction)}>
+    <div className={cn('schema-editor__slot', direction)} ref={ref}>
       {children}
     </div>
   );

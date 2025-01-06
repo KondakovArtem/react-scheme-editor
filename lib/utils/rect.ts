@@ -1,23 +1,35 @@
-import { Position, TangentDirections, TRect } from "../models";
-import { Point } from "./point";
+import { Position, TRect, TangentDirections } from '../models';
 
-type RectSide = "left" | "right" | "top" | "bottom";
+import { Point } from './point';
+
+enum RectSide {
+  Left = 'left',
+  Right = 'right',
+  Top = 'top',
+  Bottom = 'bottom'
+}
 
 export class Rect implements TRect {
   public width!: number;
+
   public height!: number;
+
   public x!: number;
+
   public y!: number;
 
   public get left(): number {
     return this.x;
   }
+
   public get top(): number {
     return this.y;
   }
+
   public get bottom(): number {
     return this.y + this.height;
   }
+
   public get right(): number {
     return this.x + this.width;
   }
@@ -26,8 +38,13 @@ export class Rect implements TRect {
     return new Rect(data);
   }
 
+  public sameCoord(data: Position) {
+    return this.x === data.x && this.y === data.y;
+  }
+
   public toJson(): TRect {
     const { x, y, width, height } = this;
+
     return { x, y, width, height };
   }
 
@@ -73,39 +90,42 @@ export class Rect implements TRect {
     );
   }
 
-  public sideNearestToPoint(point: Point): RectSide {
-    point = new Point(point);
+  public sideNearestToPoint(point: Point, auxPoint?: Point): RectSide {
+    if (this.sameCoord(point) && auxPoint) {
+      point = auxPoint;
+    }
     const distToLeft = point.x - this.x;
     const distToRight = this.x + this.width - point.x;
     const distToTop = point.y - this.y;
     const distToBottom = this.y + this.height - point.y;
     let closest = distToLeft;
-    let side: RectSide = "left";
+    let side = RectSide.Left;
 
     if (distToRight < closest) {
       closest = distToRight;
-      side = "right";
+      side = RectSide.Right;
     }
     if (distToTop < closest) {
       closest = distToTop;
-      side = "top";
+      side = RectSide.Top;
     }
     if (distToBottom < closest) {
       // closest = distToBottom;
-      side = "bottom";
+      side = RectSide.Bottom;
     }
+
     return side;
   }
 
   private getTangentDirectionBySide(side: RectSide): TangentDirections {
     switch (side) {
-      case "top":
+      case RectSide.Top:
         return TangentDirections.UP;
-      case "right":
+      case RectSide.Right:
         return TangentDirections.RIGHT;
-      case "bottom":
+      case RectSide.Bottom:
         return TangentDirections.DOWN;
-      case "left":
+      case RectSide.Left:
         return TangentDirections.LEFT;
       default:
         return TangentDirections.AUTO;
@@ -168,9 +188,10 @@ export class Rect implements TRect {
       default:
         break;
     }
+
     return {
       point: sidePoint,
-      shiftedPoint,
+      shiftedPoint
     };
   }
 
@@ -183,37 +204,27 @@ export class Rect implements TRect {
   } {
     const tangentDirection = tangentDirections[0];
 
-    switch (tangentDirection) {
-      case TangentDirections.UP:
-        return {
-          point: this.getSideCenterTop(),
-          direction: tangentDirection,
-        };
-      case TangentDirections.RIGHT:
-        return {
-          point: this.getSideCenterRight(),
-          direction: tangentDirection,
-        };
-      case TangentDirections.DOWN:
-        return {
-          point: this.getSideCenterBottom(),
-          direction: tangentDirection,
-        };
-      case TangentDirections.LEFT:
-        return {
-          point: this.getSideCenterLeft(),
-          direction: tangentDirection,
-        };
-      default:
-        break;
+    const directionCalc: { [key in TangentDirections]?: () => Point } = {
+      [TangentDirections.UP]: () => this.getSideCenterTop(),
+      [TangentDirections.RIGHT]: () => this.getSideCenterRight(),
+      [TangentDirections.DOWN]: () => this.getSideCenterBottom(),
+      [TangentDirections.LEFT]: () => this.getSideCenterLeft()
+    };
+
+    if (directionCalc[tangentDirection]) {
+      return {
+        point: directionCalc[tangentDirection](),
+        direction: tangentDirection
+      };
     }
 
     const pointOnRect = this.getClosestPointOnRect(point);
-    const side = this.sideNearestToPoint(pointOnRect);
+    const side = this.sideNearestToPoint(pointOnRect, point);
     const direction = this.getTangentDirectionBySide(side);
+
     return {
       point: pointOnRect,
-      direction,
+      direction
     };
   }
 
@@ -222,7 +233,7 @@ export class Rect implements TRect {
       this.getSideCenterTop(),
       this.getSideCenterRight(),
       this.getSideCenterBottom(),
-      this.getSideCenterLeft(),
+      this.getSideCenterLeft()
     ];
   }
 
@@ -231,9 +242,10 @@ export class Rect implements TRect {
     const sidePoints = this.getSideCenters()
       .map((sidePoint) => ({
         point: sidePoint,
-        d: sidePoint.distance(point),
+        d: sidePoint.distance(point)
       }))
       .sort((a, b) => (a.d < b.d ? -1 : 1));
+
     return sidePoints[0].point;
   }
 
@@ -244,14 +256,14 @@ export class Rect implements TRect {
   public getSideLineRight(): [Point, Point] {
     return [
       new Point(this.right, this.top),
-      new Point(this.right, this.bottom),
+      new Point(this.right, this.bottom)
     ];
   }
 
   public getSideLineBottom(): [Point, Point] {
     return [
       new Point(this.right, this.bottom),
-      new Point(this.left, this.bottom),
+      new Point(this.left, this.bottom)
     ];
   }
 
@@ -276,7 +288,7 @@ export class Rect implements TRect {
           this.getSideLineTop(),
           this.getSideLineRight(),
           this.getSideLineBottom(),
-          this.getSideLineLeft(),
+          this.getSideLineLeft()
         ];
     }
   }
@@ -287,14 +299,18 @@ export class Rect implements TRect {
   ): Point {
     const lines: [Point, Point][] = this.getRelevantSideLines(tangentDirection);
 
-    const dist = lines.reduce((pre, line) => {
-      const distance = point.distanceToLine(...line);
-      // const d = pDistance(point.x, point.y, ...line);
-      if (!pre || distance.d < pre.d) {
-        return distance;
-      }
-      return pre;
-    }, null as unknown as ReturnType<typeof point.distanceToLine>);
+    const dist = lines.reduce(
+      (pre, line) => {
+        const distance = point.distanceToLine(...line);
+        // const d = pDistance(point.x, point.y, ...line);
+        if (!pre || distance.d < pre.d) {
+          return distance;
+        }
+
+        return pre;
+      },
+      null as unknown as ReturnType<typeof point.distanceToLine>
+    );
 
     return dist.p;
   }

@@ -4,7 +4,7 @@ import { FC, PropsWithChildren, useRef } from 'react';
 import {
   draftLinkAtom,
   onAddDraftLinkAtom,
-  setDraftLinkToAtom,
+  setDraftLinkToAtom
 } from '../../context/dragNodePosition.context';
 import { TangentDirections } from '../../models';
 import { DragItem } from '../drag/DragItem';
@@ -19,7 +19,7 @@ export interface SlotHandlerProps {
 
 export const SlotHandler: FC<PropsWithChildren<SlotHandlerProps>> = ({
   id,
-  children,
+  children
 }) => {
   const ref = useRef<HTMLDivElement | null>(null);
 
@@ -36,13 +36,13 @@ export const SlotHandler: FC<PropsWithChildren<SlotHandlerProps>> = ({
             ...e.current.scale,
             width: 1,
             height: 1,
-            directions: [TangentDirections.AUTO],
-          },
-        },
+            directions: [TangentDirections.AUTO]
+          }
+        }
       });
     }) as IDragItem['dragStart'],
     slotDragMove: ((e) => setDraftLinkTo(e)) as IDragItem['dragMove'],
-    slotDragEnd: ((e) => onAddDraftLink(e)) as IDragItem['dragEnd'],
+    slotDragEnd: ((e) => onAddDraftLink(e)) as IDragItem['dragEnd']
   });
 
   const { slotDragStart, slotDragMove, slotDragEnd } = stateRef.current;
@@ -50,12 +50,12 @@ export const SlotHandler: FC<PropsWithChildren<SlotHandlerProps>> = ({
   return (
     <>
       <DragItem
-        itemRef={ref}
-        dragStart={slotDragStart}
-        dragMove={slotDragMove}
         dragEnd={slotDragEnd}
-      ></DragItem>
-      <div ref={ref} className="schema-editor__slot-handler">
+        dragMove={slotDragMove}
+        dragStart={slotDragStart}
+        itemRef={ref}
+      />
+      <div className="schema-editor__slot-handler" ref={ref}>
         {children}
       </div>
     </>

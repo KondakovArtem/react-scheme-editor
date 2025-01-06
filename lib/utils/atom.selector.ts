@@ -1,5 +1,5 @@
-import { atom, WritableAtom, useAtomValue, Getter } from "jotai";
-import { useMemo } from "react";
+import { Getter, WritableAtom, atom, useAtomValue } from 'jotai';
+import { useMemo } from 'react';
 
 export function useSelectAtomValue<T, G extends unknown[], V, R>(
   rootAtom: WritableAtom<T, G, V>,

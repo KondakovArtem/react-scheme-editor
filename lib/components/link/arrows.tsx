@@ -1,4 +1,4 @@
-import { SchemaEditorNodeLinkArrow } from "../../models";
+import { SchemaEditorNodeLinkArrow } from '../../models';
 
 export function arrowNone() {
   return <path d="M0 7L28 7" />;
@@ -78,8 +78,8 @@ export function arrowFoundMessage() {
   return (
     <>
       <path
-        d="M28 7C28 9.76142 25.7614 12 23 12C20.2386 12 18 9.76142 18 7C18 4.23858 20.2386 2 23 2C25.7614 2 28 4.23858 28 7Z"
         className="filled"
+        d="M28 7C28 9.76142 25.7614 12 23 12C20.2386 12 18 9.76142 18 7C18 4.23858 20.2386 2 23 2C25.7614 2 28 4.23858 28 7Z"
       />
       <path d="M0 6.99994H27.0667" />
     </>
@@ -108,7 +108,7 @@ export function arrowTriangle() {
   return (
     <>
       <path d="M0 7H16.8" />
-      <path d="M28 7.00003L16 13L16 0.999999L28 7.00003Z" className="filled" />
+      <path className="filled" d="M28 7.00003L16 13L16 0.999999L28 7.00003Z" />
     </>
   );
 }
@@ -127,8 +127,8 @@ export function arrowComposition() {
     <>
       <path d="M0 7L11.6667 7" />
       <path
-        d="M9 6.99997L18.5 1.00003L28 6.99997L18.5 13L9 6.99997Z"
         className="filled"
+        d="M9 6.99997L18.5 1.00003L28 6.99997L18.5 13L9 6.99997Z"
       />
     </>
   );
@@ -199,5 +199,5 @@ export const arrows = {
   [SchemaEditorNodeLinkArrow.arrowComposition]: arrowComposition,
   [SchemaEditorNodeLinkArrow.arrowControlLifeline]: arrowControlLifeline,
   [SchemaEditorNodeLinkArrow.arrowEntityLifeline]: arrowEntityLifeline,
-  [SchemaEditorNodeLinkArrow.arrowBoundaryLifeline]: arrowBoundaryLifeline,
+  [SchemaEditorNodeLinkArrow.arrowBoundaryLifeline]: arrowBoundaryLifeline
 };

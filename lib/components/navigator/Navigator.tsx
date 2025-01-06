@@ -1,34 +1,34 @@
-import { FC, MutableRefObject, useEffect, useMemo, useRef } from "react";
-import { useAtom, useAtomValue } from "jotai";
-import style from "./Navigator.module.scss";
+import { useAtom, useAtomValue } from 'jotai';
+import { FC, MutableRefObject, useEffect, useMemo, useRef } from 'react';
+
+import { canvasPositionAtom } from '../../context/canvasPosition.context';
+import { canvasSizeAtom } from '../../context/canvasSize.context';
+import { dragginModeAtom } from '../../context/draggingMode.context';
+import { methodsAtom } from '../../context/methods.context';
+import { NodeRects, nodeRectsAtom } from '../../context/rects.context';
+import { selectedNodeAtom } from '../../context/selected.context';
+import { zoomAtom } from '../../context/zoom.context';
 import {
   EDraggingMode,
   Position,
   SchemaEditorData,
-  SchemaEditorNode,
-} from "../../models";
-import { DragItem } from "../drag/DragItem";
-import { IDraggingEvent, IDragItem, subCoords } from "../drag/Dragger";
-import { methodsAtom } from "../../context/methods.context";
+  SchemaEditorNode
+} from '../../models';
+import { DragItem } from '../drag/DragItem';
+import { IDragItem, IDraggingEvent, subCoords } from '../drag/Dragger';
+
+import style from './Navigator.module.scss';
 import {
-  updateViewportParams,
-  updateMapParams,
-  ViewportParams,
-  MapParams,
+  DragViewport,
   MAP_MAX_SIZE,
   MAP_MIN_SIZE,
-  DragViewport,
-  renderMap,
+  MapParams,
   NavigatorColors,
-} from "./helpers";
-
-import { NodeRects, nodeRectsAtom } from "../../context/rects.context";
-
-import { canvasPositionAtom } from "../../context/canvasPosition.context";
-import { zoomAtom } from "../../context/zoom.context";
-import { canvasSizeAtom } from "../../context/canvasSize.context";
-import { dragginModeAtom } from "../../context/draggingMode.context";
-import { selectedNodeAtom } from "../../context/selected.context";
+  ViewportParams,
+  renderMap,
+  updateMapParams,
+  updateViewportParams
+} from './helpers';
 
 interface NavigatorProps {
   data?: SchemaEditorData;
@@ -52,9 +52,9 @@ export const Navigator: FC<NavigatorProps> = ({ data }) => {
     () =>
       [
         style.container,
-        !showMap ? "collapsed" : "",
-        draggingMode === EDraggingMode.navigator ? style.active : "",
-      ].join(" "),
+        !showMap ? 'collapsed' : '',
+        draggingMode === EDraggingMode.navigator ? style.active : ''
+      ].join(' '),
     [draggingMode, showMap]
   );
 
@@ -66,11 +66,11 @@ export const Navigator: FC<NavigatorProps> = ({ data }) => {
       const canvasComputedStyle = getComputedStyle(canvas);
       colorRef.current = {
         mapBg: canvasComputedStyle.getPropertyValue(
-          "--schema-editor-navigator-map-bg"
+          '--schema-editor-navigator-map-bg'
         ),
         mapStroke: canvasComputedStyle.getPropertyValue(
-          "--schema-editor-navigator-map-stroke"
-        ),
+          '--schema-editor-navigator-map-stroke'
+        )
       };
     }
   }, [canvasRef]);
@@ -99,7 +99,7 @@ export const Navigator: FC<NavigatorProps> = ({ data }) => {
     pos: { x: 0, y: 0 },
     zoom: 1,
     virtualViewportPosition: { x: 0, y: 0 },
-    virtualViewportSize: { width: 0, height: 0 },
+    virtualViewportSize: { width: 0, height: 0 }
   });
 
   const mapParamsRef = useRef<MapParams>({
@@ -107,7 +107,7 @@ export const Navigator: FC<NavigatorProps> = ({ data }) => {
     mapSize: { width: 0, height: 0 },
     mapPosition: { x: 0, y: 0 },
     framePosition: { x: 0, y: 0 },
-    frameSize: { width: 0, height: 0 },
+    frameSize: { width: 0, height: 0 }
   });
   const dragViewportRef = useRef<DragViewport | undefined>();
 
@@ -115,12 +115,12 @@ export const Navigator: FC<NavigatorProps> = ({ data }) => {
     renderMap: (
       data?: SchemaEditorData,
       rects?: NodeRects,
-      selected?: SchemaEditorNode["id"][]
+      selected?: SchemaEditorNode['id'][]
     ) => void;
     updatePositionByMap: (e: IDraggingEvent) => undefined | Position;
-    mapDragStart: IDragItem["dragStart"];
-    mapDragMove: IDragItem["dragMove"];
-    mapDragEnd: IDragItem["dragEnd"];
+    mapDragStart: IDragItem['dragStart'];
+    mapDragMove: IDragItem['dragMove'];
+    mapDragEnd: IDragItem['dragEnd'];
   }> = useRef({
     renderMap: (data, rects, selected?) =>
       renderMap(data, rects, {
@@ -129,41 +129,41 @@ export const Navigator: FC<NavigatorProps> = ({ data }) => {
         viewportParams: viewportParamsRef.current,
         canvas: canvasRef.current,
         colors: colorRef.current,
-        selected,
+        selected
       }),
 
     updatePositionByMap: (e) => {
       const { mapParams, viewportParams } = dragViewportRef.current ?? {};
-      if (mapParams) {
-        const mapCanvasRect = canvasRef.current?.getBoundingClientRect();
-        if (mapCanvasRect && mapParams && viewportParams) {
-          const { mapPosition, frameSize, sizeK } = mapParams;
-          const { minPos, zoom } = viewportParams;
-          const mapStartPoint = subCoords(e.origin.handler, mapCanvasRect);
-          const mapViewportPos = {
-            x: mapStartPoint.x + (e.dPos?.handler.x ?? 0) - frameSize.width / 2,
-            y:
-              mapStartPoint.y + (e.dPos?.handler.y ?? 0) - frameSize.height / 2,
-          };
+      if (!mapParams || !viewportParams) return undefined;
 
-          const viewportPos = {
-            x: -((mapViewportPos.x - mapPosition.x) / sizeK + minPos.x) * zoom,
-            y: -((mapViewportPos.y - mapPosition.y) / sizeK + minPos.y) * zoom,
-          };
+      const mapCanvasRect = canvasRef.current?.getBoundingClientRect();
+      if (!mapCanvasRect) return undefined;
 
-          dragViewportRef.current &&
-            (dragViewportRef.current.mapViewport = mapViewportPos);
+      const { mapPosition, frameSize, sizeK } = mapParams;
+      const { minPos, zoom } = viewportParams;
+      const mapStartPoint = subCoords(e.origin.handler, mapCanvasRect);
+      const mapViewportPos = {
+        x: mapStartPoint.x + (e.dPos?.handler.x ?? 0) - frameSize.width / 2,
+        y: mapStartPoint.y + (e.dPos?.handler.y ?? 0) - frameSize.height / 2
+      };
 
-          setCanvasPosition?.(viewportPos);
-          return viewportPos;
-        }
-      }
+      const viewportPos = {
+        x: -((mapViewportPos.x - mapPosition.x) / sizeK + minPos.x) * zoom,
+        y: -((mapViewportPos.y - mapPosition.y) / sizeK + minPos.y) * zoom
+      };
+
+      if (dragViewportRef.current)
+        dragViewportRef.current.mapViewport = mapViewportPos;
+
+      setCanvasPosition?.(viewportPos);
+
+      return viewportPos;
     },
     mapDragStart: (e) => {
       setDraggingMode(EDraggingMode.navigator);
       dragViewportRef.current = {
         viewportParams: { ...viewportParamsRef.current },
-        mapParams: { ...mapParamsRef.current },
+        mapParams: { ...mapParamsRef.current }
       };
       methodsRef.current.updatePositionByMap(e);
     },
@@ -171,9 +171,9 @@ export const Navigator: FC<NavigatorProps> = ({ data }) => {
     mapDragEnd: (event) => {
       setTimeout(() => setDraggingMode(EDraggingMode.none));
       const canvasPosition = methodsRef.current.updatePositionByMap(event);
-      canvasPosition && onChangeConfig?.({ canvasPosition });
+      if (canvasPosition) onChangeConfig?.({ canvasPosition });
       delete dragViewportRef.current;
-    },
+    }
   });
 
   const scrollSizeKRef = useRef<Position>({ x: 1, y: 1 });
@@ -181,7 +181,7 @@ export const Navigator: FC<NavigatorProps> = ({ data }) => {
   const mapSize = useMemo(
     () => ({
       width: `${(!showMap ? MAP_MIN_SIZE : MAP_MAX_SIZE).width}px`,
-      height: `${(!showMap ? MAP_MIN_SIZE : MAP_MAX_SIZE).height}px`,
+      height: `${(!showMap ? MAP_MIN_SIZE : MAP_MAX_SIZE).height}px`
     }),
     [showMap]
   );
@@ -247,20 +247,21 @@ export const Navigator: FC<NavigatorProps> = ({ data }) => {
               class="p-button-sm p-button-outlined p-button-secondary"
           ></button>
       </div>
-  </div>*/}
+  </div> */}
+
       <DragItem
-        itemRef={canvasRef}
-        dragStart={methodsRef.current.mapDragStart}
-        dragMove={methodsRef.current.mapDragMove}
         dragEnd={methodsRef.current.mapDragEnd}
+        dragMove={methodsRef.current.mapDragMove}
+        dragStart={methodsRef.current.mapDragStart}
+        itemRef={canvasRef}
       >
         <canvas
-          onClick={(e) => e.stopPropagation()}
-          width={mapSize.width}
+          className={style.mapCanvas}
           height={mapSize.height}
           ref={canvasRef}
           style={mapSize}
-          className={style.mapCanvas}
+          width={mapSize.width}
+          onClick={(e) => e.stopPropagation()}
         ></canvas>
       </DragItem>
     </div>

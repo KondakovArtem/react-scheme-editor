@@ -1,10 +1,10 @@
 import {
-  useEffect,
-  MutableRefObject,
-  MouseEventHandler,
-  useRef,
   MouseEvent,
-} from "react";
+  MouseEventHandler,
+  MutableRefObject,
+  useEffect,
+  useRef
+} from 'react';
 
 export interface UseMouseDown<T = Element> {
   ref: MutableRefObject<T | null>;
@@ -13,16 +13,16 @@ export interface UseMouseDown<T = Element> {
 
 export function useMouseDown<T extends Element>({
   ref,
-  onMouseDown,
+  onMouseDown
 }: UseMouseDown<T>) {
   const callback = useRef((e: MouseEvent) => onMouseDown(e));
 
   useEffect(() => {
-    ref.current?.addEventListener("mousedown", callback.current as any);
+    const { current } = ref;
+    current?.addEventListener('mousedown', callback.current as any);
+
     return () => {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      ref.current?.removeEventListener("mousedown", callback.current as any);
+      current?.removeEventListener('mousedown', callback.current as any);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref]);
 }

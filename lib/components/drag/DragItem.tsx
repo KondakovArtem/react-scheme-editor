@@ -1,16 +1,17 @@
+import { useAtomValue } from 'jotai';
 import {
   FC,
-  memo,
   MutableRefObject,
   PropsWithChildren,
+  memo,
   useEffect,
-  useRef,
-} from "react";
+  useRef
+} from 'react';
 
-import { draggerContextAtom, IDraggerContext, IDragItem } from "./Dragger";
-import { debounce } from "../../utils/debounce";
-import { EMouseButton, MouseTouchEvent } from "../../models";
-import { useAtomValue } from "jotai";
+import { EMouseButton, MouseTouchEvent } from '../../models';
+import { debounce } from '../../utils/debounce';
+
+import { IDragItem, IDraggerContext, draggerContextAtom } from './Dragger';
 
 export interface DragOptions {
   delay?: number;
@@ -38,7 +39,7 @@ export const DragItem: FC<DragItemProps> = memo(
         downItemDebounce: ReturnType<typeof debounce>;
         stopHandler(): void;
         downItem(e: MouseTouchEvent): void;
-        draggerInit: IDraggerContext["draggerInit"];
+        draggerInit: IDraggerContext['draggerInit'];
       }
     > = useRef({
       dragStart,
@@ -65,10 +66,10 @@ export const DragItem: FC<DragItemProps> = memo(
           methodRef.current?.draggerInit?.(e, {
             dragStart,
             dragMove,
-            dragEnd,
+            dragEnd
           });
         }
-      },
+      }
     });
     Object.assign(methodRef.current, { draggerInit });
 
@@ -87,20 +88,21 @@ export const DragItem: FC<DragItemProps> = memo(
       const el = itemRef.current;
       if (!el) return;
 
-      el.addEventListener("mousedown", startHandler);
-      el.addEventListener("touchstart", startHandler);
-      el.addEventListener("mouseup", stopHandler);
+      el.addEventListener('mousedown', startHandler);
+      el.addEventListener('touchstart', startHandler);
+      el.addEventListener('mouseup', stopHandler);
       const unlisteners: (() => void)[] = [
-        () => el.removeEventListener("mousedown", startHandler),
-        () => el.removeEventListener("touchstart", startHandler),
-        () => el.removeEventListener("mouseup", stopHandler),
+        () => el.removeEventListener('mousedown', startHandler),
+        () => el.removeEventListener('touchstart', startHandler),
+        () => el.removeEventListener('mouseup', stopHandler)
       ];
+
       return () => unlisteners.forEach((u) => u());
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [itemRef]);
 
-    return <>{children}</>;
+    return children;
   }
 );
 
-DragItem.displayName = "DragItem";
+DragItem.displayName = 'DragItem';

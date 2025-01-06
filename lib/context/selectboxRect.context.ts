@@ -1,11 +1,12 @@
-import { atom } from "jotai";
-import { TRect } from "../models";
-import { nodeRectsAtom } from "./rects.context";
-import { IDraggingEvent } from "../components/drag/Dragger";
-import { selectedNodeAtom } from "./selected.context";
+import { atom } from 'jotai';
 
-import { methodsAtom } from "./methods.context";
-import { dataAtom } from "./data.context";
+import { IDraggingEvent } from '../components/drag/Dragger';
+import { TRect } from '../models';
+
+import { dataAtom } from './data.context';
+import { methodsAtom } from './methods.context';
+import { nodeRectsAtom } from './rects.context';
+import { selectedNodeAtom } from './selected.context';
 
 export const selectboxRectAtom = atom<TRect | undefined>();
 
@@ -43,7 +44,7 @@ export const selectBySelectBoxAtom = atom(
         x: origin.scale.x + (dPos.scale.x < 0 ? dPos.scale.x : 0),
         y: origin.scale.y + (dPos.scale.y < 0 ? dPos.scale.y : 0),
         width: Math.abs(dPos.scale.x),
-        height: Math.abs(dPos.scale.y),
+        height: Math.abs(dPos.scale.y)
       };
 
       let newSelectedNodes = Object.keys(rects)
@@ -57,6 +58,7 @@ export const selectBySelectBoxAtom = atom(
           ) {
             return id;
           }
+
           return undefined;
         })
         .filter((i) => i) as string[];
