@@ -236,7 +236,7 @@ export const Dragger: FC<DraggerProps> = (props) => {
     },
 
     dragMove: (e: MouseTouchEvent) => {
-      requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
         const { dragEvent } = methodRef.current;
         const { curDragItem } = stateRef.current;
         const event = dragEvent(e);

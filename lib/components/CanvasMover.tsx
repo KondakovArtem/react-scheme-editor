@@ -20,7 +20,7 @@ export const CanvasMover: FC<
 
   if (positionRef) positionRef.current = canvasPosition;
 
-  requestAnimationFrame(() => {
+  window.requestAnimationFrame(() => {
     const { current: canvas } = canvasRef;
     const { current: drag } = dragRef;
     const { x, y } = canvasPosition;

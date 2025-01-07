@@ -19,8 +19,6 @@ export interface DragOptions {
     button?: EMouseButton[];
     target?: string[];
   }[];
-  // button: EMouseButton[];
-  // exactTarget?: boolean;
 }
 
 export type DragItemProps<T extends HTMLElement = HTMLElement> = IDragItem &
@@ -45,8 +43,6 @@ function checkConditions(
     const targetMatch =
       condition.target?.some((target) => {
         if (target === '__self') {
-          debugger;
-
           return e.target === self;
         }
 
@@ -79,9 +75,13 @@ export const DragItem: FC<DragItemProps> = memo(
       startHandler: (e: MouseTouchEvent): void => {
         const { conditions } = dragOptions ?? {};
 
-        if (
-          checkConditions(conditions, itemRef.current, e as MouseEvent)?.length
-        ) {
+        const filterConditions = checkConditions(
+          conditions,
+          itemRef.current,
+          e as MouseEvent
+        );
+
+        if (filterConditions == null || filterConditions?.length) {
           e.stopPropagation();
           e.preventDefault();
           methodRef.current.downItemDebounce?.(e);
@@ -95,9 +95,12 @@ export const DragItem: FC<DragItemProps> = memo(
       downItem: (e: MouseTouchEvent) => {
         const { dragStart, dragMove, dragEnd } = methodRef.current;
         const { conditions } = dragOptions ?? {};
-        if (
-          checkConditions(conditions, itemRef.current, e as MouseEvent)?.length
-        ) {
+        const filterConditions = checkConditions(
+          conditions,
+          itemRef.current,
+          e as MouseEvent
+        );
+        if (filterConditions == null || filterConditions?.length) {
           methodRef.current?.draggerInit?.(e, {
             dragStart,
             dragMove,

@@ -10,11 +10,12 @@ import { selectedNodeAtom } from '../../context/selected.context';
 import { zoomAtom } from '../../context/zoom.context';
 import {
   EDraggingMode,
+  EMouseButton,
   Position,
   SchemaEditorData,
   SchemaEditorNode
 } from '../../models';
-import { DragItem } from '../drag/DragItem';
+import { DragItem, DragOptions } from '../drag/DragItem';
 import { IDragItem, IDraggingEvent, subCoords } from '../drag/Dragger';
 
 import style from './Navigator.module.scss';
@@ -33,6 +34,10 @@ import {
 interface NavigatorProps {
   data?: SchemaEditorData;
 }
+
+const NAVIGATOR_DRAG_OPTIONS: DragOptions = {
+  conditions: [{ button: [EMouseButton.left] }]
+};
 
 export const Navigator: FC<NavigatorProps> = ({ data }) => {
   const canvasSize = useAtomValue(canvasSizeAtom);
@@ -252,6 +257,7 @@ export const Navigator: FC<NavigatorProps> = ({ data }) => {
       <DragItem
         dragEnd={methodsRef.current.mapDragEnd}
         dragMove={methodsRef.current.mapDragMove}
+        dragOptions={NAVIGATOR_DRAG_OPTIONS}
         dragStart={methodsRef.current.mapDragStart}
         itemRef={canvasRef}
       >
