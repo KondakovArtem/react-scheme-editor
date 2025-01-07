@@ -21,6 +21,6 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": "."
   },
-  "include": ["src", "lib"],
+  "include": ["test", "lib"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

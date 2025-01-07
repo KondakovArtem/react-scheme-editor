@@ -2,7 +2,6 @@
 
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import { useSetAtom } from 'jotai';
-import { isEqual } from 'lib/utils/isEqual';
 import {
   CSSProperties,
   FC,
@@ -14,6 +13,8 @@ import {
   useMemo,
   useRef
 } from 'react';
+
+import { isEqual } from 'lib/utils/isEqual';
 
 import { updateDataNodePositionAtom } from '../../context/data.context';
 import {
@@ -51,7 +52,11 @@ function nodeStyles(position: SchemaEditorNode['position']): CSSProperties {
 }
 
 const DRAG_NODE_OPTIONS: DragOptions = {
-  button: [EMouseButton.left],
+  conditions: [
+    {
+      button: [EMouseButton.left]
+    }
+  ],
   delay: 100
 };
 

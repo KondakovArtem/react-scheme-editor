@@ -3,8 +3,9 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import cn from 'classnames';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { showNavigatorAtom } from 'lib/context/config.context';
 import { FC, MouseEventHandler, memo, useCallback, useRef } from 'react';
+
+import { showNavigatorAtom } from 'lib/context/config.context';
 
 import { canvasPositionAtom } from '../context/canvasPosition.context';
 import { canvasSizeAtom } from '../context/canvasSize.context';
@@ -42,7 +43,15 @@ interface SchemaEditorCanvasProps {
 }
 
 const DRAG_CANVAS_OPTIONS: DragOptions = {
-  button: [EMouseButton.left, EMouseButton.middle],
+  conditions: [
+    {
+      button: [EMouseButton.left],
+      target: ['__self', 'schema-editor__drag']
+    },
+    {
+      button: [EMouseButton.middle]
+    }
+  ],
   delay: 100
 };
 

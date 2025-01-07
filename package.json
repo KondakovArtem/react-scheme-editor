@@ -1,8 +1,9 @@
 {
   "name": "react-scheme-editor",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "license": "MIT",
+  "main": "dist/index.js",
   "homepage": "https://github.com/KondakovArtem/react-scheme-editor",
   "repository": {
     "type": "git",
@@ -74,10 +75,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
     "build": "vite build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
+    "lint:ts": "eslint \"lib/**/*.{ts,tsx}\"",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },

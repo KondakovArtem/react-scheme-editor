@@ -2,3 +2,14 @@
 /lib
 /public
 /.storybook
+/tsconfig.json
+/tsconfig.node.json
+/vite.config.ts
+/react-scheme-editor.code-workspace
+/.yarnrc.yml
+/.prettierrc
+/.gitignore
+/.eslintrc
+/.gitignore
+/.yarn
+/test

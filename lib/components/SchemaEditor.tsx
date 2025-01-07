@@ -7,8 +7,10 @@ import {
   useSetAtom
 } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
-import { configAtom } from 'lib/context/config.context';
 import { FC, ReactNode, memo, useEffect, useRef } from 'react';
+
+import { configAtom } from 'lib/context/config.context';
+import { dragginModeAtom } from 'lib/context/draggingMode.context';
 
 import { dataAtom } from '../context/data.context';
 import { draftLinkAtom } from '../context/dragNodePosition.context';
@@ -44,7 +46,7 @@ export const SchemaEditor: FC<SchemaEditorProps> = ({ children, ...props }) => {
   );
 };
 
-export const SchemaEditorComponent: FC<SchemaEditorProps> = memo((props) => {
+const SchemaEditorComponent: FC<SchemaEditorProps> = memo((props) => {
   const { onChangeConfig, children, onSelect, onChangeData, onAddLink } = props;
   const methodsRef = useRef({ onChangeConfig });
   Object.assign(methodsRef.current, { onChangeConfig });
@@ -68,6 +70,7 @@ export const SchemaEditorComponent: FC<SchemaEditorProps> = memo((props) => {
   }, [onSelect, setMethods, onChangeData, onChangeConfig, onAddLink]);
 
   const draftLink = useAtomValue(draftLinkAtom);
+  const draggingMode = useAtomValue(dragginModeAtom);
 
   return (
     <>
@@ -75,6 +78,9 @@ export const SchemaEditorComponent: FC<SchemaEditorProps> = memo((props) => {
       <div>
         <pre style={{ fontSize: '8px', textAlign: 'left' }}>
           {JSON.stringify(draftLink, null, '\t')}
+        </pre>
+        <pre style={{ fontSize: '8px', textAlign: 'left' }}>
+          draggingMode={draggingMode}
         </pre>
       </div>
       {/* <div>

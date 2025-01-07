@@ -1,7 +1,7 @@
 import react from '@vitejs/plugin-react';
 import { glob } from 'glob';
 import { fileURLToPath } from 'node:url';
-import { extname, resolve } from 'path';
+import { extname, relative, resolve } from 'path';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import { libInjectCss } from 'vite-plugin-lib-inject-css';
@@ -38,14 +38,12 @@ export default defineConfig({
         'svg-points'
       ],
       input: Object.fromEntries(
-        glob.sync('lib/**/*.{ts,tsx}').map((file) => [
-          // Используем только имя файла без пути
-          file
-            .slice(0, file.length - extname(file).length)
-            .split('/')
-            .pop(),
-          fileURLToPath(new URL(file, import.meta.url))
-        ])
+        glob
+          .sync('lib/**/*.{ts,tsx}')
+          .map((file) => [
+            relative('lib', file.slice(0, file.length - extname(file).length)),
+            fileURLToPath(new URL(file, import.meta.url))
+          ])
       ),
       output: {
         assetFileNames: 'assets/[name][extname]',

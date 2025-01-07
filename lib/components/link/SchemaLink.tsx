@@ -41,7 +41,7 @@ export const SchemaLink: FC<SchemaEditorLinkProps> = memo(({ data }) => {
 
   const onLinkClick = useCallback(
     (e: MouseEvent) => {
-      // console.log('onLinkClick', id);
+      console.log('onLinkClick', id);
       onClickElement({ e, ids: [id] });
       e.stopPropagation();
     },
@@ -60,7 +60,7 @@ export const SchemaLink: FC<SchemaEditorLinkProps> = memo(({ data }) => {
 
   useMouseDown<SVGPathElement>({
     ref: pathHandleRef,
-    onMouseDown: useCallback((e: MouseEvent) => e.stopPropagation(), [])
+    onMouseDown: useCallback((e) => e.stopPropagation(), [])
   });
 
   if (!fromSlot || !toSlot) return undefined;

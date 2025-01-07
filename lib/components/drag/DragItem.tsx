@@ -15,7 +15,12 @@ import { IDragItem, IDraggerContext, draggerContextAtom } from './Dragger';
 
 export interface DragOptions {
   delay?: number;
-  button: EMouseButton[];
+  conditions?: {
+    button?: EMouseButton[];
+    target?: string[];
+  }[];
+  // button: EMouseButton[];
+  // exactTarget?: boolean;
 }
 
 export type DragItemProps<T extends HTMLElement = HTMLElement> = IDragItem &
@@ -24,14 +29,39 @@ export type DragItemProps<T extends HTMLElement = HTMLElement> = IDragItem &
     dragOptions?: DragOptions;
   };
 
+function checkConditions(
+  conditions: DragOptions['conditions'],
+  self: HTMLElement | null,
+  e: MouseEvent
+): DragOptions['conditions'] | null {
+  if (!conditions?.length) return null;
+
+  return conditions.filter((condition) => {
+    // Проверка кнопки
+    const buttonMatch =
+      condition.button?.includes(e.button as EMouseButton) ?? true;
+
+    // Проверка целевого элемента
+    const targetMatch =
+      condition.target?.some((target) => {
+        if (target === '__self') {
+          debugger;
+
+          return e.target === self;
+        }
+
+        return (e.target as HTMLElement).classList.contains(target);
+      }) ?? true;
+
+    return buttonMatch && targetMatch;
+  });
+}
+
 /**  Компонент, который реализует логику перетаскивания для конкретного элемента.
  *  Он использует контекст DraggerContext для взаимодействия с Dragger */
 export const DragItem: FC<DragItemProps> = memo(
   ({ dragOptions, itemRef, children, dragStart, dragMove, dragEnd }) => {
     const { draggerInit } = useAtomValue(draggerContextAtom);
-
-    const dragOptionsRef = useRef(dragOptions);
-    dragOptionsRef.current = dragOptions;
 
     const methodRef: MutableRefObject<
       IDragItem & {
@@ -47,8 +77,11 @@ export const DragItem: FC<DragItemProps> = memo(
       dragEnd,
       draggerInit,
       startHandler: (e: MouseTouchEvent): void => {
-        const { button } = dragOptionsRef.current ?? {};
-        if (!button || button.includes((e as MouseEvent).button)) {
+        const { conditions } = dragOptions ?? {};
+
+        if (
+          checkConditions(conditions, itemRef.current, e as MouseEvent)?.length
+        ) {
           e.stopPropagation();
           e.preventDefault();
           methodRef.current.downItemDebounce?.(e);
@@ -56,13 +89,15 @@ export const DragItem: FC<DragItemProps> = memo(
       },
       downItemDebounce: debounce(
         (e) => methodRef.current.downItem(e),
-        dragOptionsRef.current?.delay ?? 0
+        dragOptions?.delay ?? 0
       ),
       stopHandler: () => methodRef.current.downItemDebounce?.cancel(),
       downItem: (e: MouseTouchEvent) => {
         const { dragStart, dragMove, dragEnd } = methodRef.current;
-        const { button } = dragOptionsRef.current ?? {};
-        if (!button || button.includes((e as MouseEvent).button)) {
+        const { conditions } = dragOptions ?? {};
+        if (
+          checkConditions(conditions, itemRef.current, e as MouseEvent)?.length
+        ) {
           methodRef.current?.draggerInit?.(e, {
             dragStart,
             dragMove,
@@ -86,7 +121,7 @@ export const DragItem: FC<DragItemProps> = memo(
 
     useEffect(() => {
       const el = itemRef.current;
-      if (!el) return;
+      if (!el) return undefined;
 
       el.addEventListener('mousedown', startHandler);
       el.addEventListener('touchstart', startHandler);

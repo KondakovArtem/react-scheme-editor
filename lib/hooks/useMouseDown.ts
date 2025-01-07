@@ -1,28 +1,21 @@
-import {
-  MouseEvent,
-  MouseEventHandler,
-  MutableRefObject,
-  useEffect,
-  useRef
-} from 'react';
+import { MutableRefObject, useEffect } from 'react';
 
 export interface UseMouseDown<T = Element> {
   ref: MutableRefObject<T | null>;
-  onMouseDown: MouseEventHandler;
+  onMouseDown: EventListener;
 }
 
 export function useMouseDown<T extends Element>({
   ref,
   onMouseDown
 }: UseMouseDown<T>) {
-  const callback = useRef((e: MouseEvent) => onMouseDown(e));
-
   useEffect(() => {
     const { current } = ref;
-    current?.addEventListener('mousedown', callback.current as any);
+
+    current?.addEventListener('mousedown', onMouseDown);
 
     return () => {
-      current?.removeEventListener('mousedown', callback.current as any);
+      current?.removeEventListener('mousedown', onMouseDown);
     };
-  }, [ref]);
+  }, [ref, onMouseDown]);
 }

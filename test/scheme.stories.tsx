@@ -1,5 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import type { Meta, StoryObj } from '@storybook/react';
+import { PropsWithChildren, memo, useCallback, useMemo, useState } from 'react';
+
 import { SchemaEditor } from 'lib/components/SchemaEditor';
 import { arrows } from 'lib/components/link/arrows';
 import { Slot } from 'lib/components/slot/Slot';
@@ -14,7 +16,6 @@ import {
   SchemaEditorProps,
   TangentDirections
 } from 'lib/models';
-import { PropsWithChildren, memo, useCallback, useMemo, useState } from 'react';
 
 import st from './Style.module.scss';
 

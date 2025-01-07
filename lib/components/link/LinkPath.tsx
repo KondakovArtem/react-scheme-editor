@@ -84,6 +84,13 @@ export const LinkPath: FC<LinkProps> = ({
       })}
     >
       <svg style={{ display: path ? 'inherit' : 'none' }}>
+        <path
+          className={cn('schema-editor__link-path', lineType)}
+          d={path}
+          markerEnd={`url(#${markerEndId})`}
+          markerStart={`url(#${markerStartId})`}
+          ref={pathRef}
+        ></path>
         {handle && (
           <path
             className="schema-editor__link-handle"
@@ -96,13 +103,6 @@ export const LinkPath: FC<LinkProps> = ({
             onMouseOver={mouseOver}
           ></path>
         )}
-        <path
-          className={cn('schema-editor__link-path', lineType)}
-          d={path}
-          markerEnd={`url(#${markerEndId})`}
-          markerStart={`url(#${markerStartId})`}
-          ref={pathRef}
-        ></path>
         <defs>
           <marker
             className="arrow-marker"

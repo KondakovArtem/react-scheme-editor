@@ -32,7 +32,11 @@ interface PointHandlerProps {
 }
 
 const DRAG_OPTIONS: DragOptions = {
-  button: [EMouseButton.left]
+  conditions: [
+    {
+      button: [EMouseButton.left]
+    }
+  ]
 };
 
 function getPointStyle(point: Position) {
